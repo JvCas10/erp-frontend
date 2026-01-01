@@ -1,0 +1,135 @@
+/* 📌 Modal Overlay - Cubre toda la pantalla */
+.sales-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* 📌 Modal - Ocupa el 90% de la pantalla */
+.sales-modal {
+    width: 90%;
+    height: 90%;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+/* 📌 Botón de cerrar */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-fucsia);
+}
+
+/* 📌 Contenedor principal en horizontal */
+.sales-container {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+    gap: 15px;
+    height: 100%;
+}
+
+/* 📌 Sección de filtros (izquierda) */
+.sales-container .filters-section {
+    flex: 0 0 320px; /* Ancho fijo */
+    max-width: 320px;
+    overflow-y: auto;
+    padding-top: 50px;
+}
+
+/* 📌 Sección de productos y servicios */
+.sales-container .products-section,
+.sales-container .services-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.sales-container .products-section h2,
+.sales-container .services-section h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* 📌 Grid de productos y servicios */
+.sales-container .products-grid,
+.sales-container .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Máximo 2 productos por fila */
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 100%;
+    padding-right: 5px;
+}
+
+/* 📌 Tarjetas de productos y servicios */
+.product-card,
+.service-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.product-card:hover,
+.service-card:hover {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 📌 Scrollbar personalizada */
+.products-grid::-webkit-scrollbar,
+.services-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.products-grid::-webkit-scrollbar-track,
+.services-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.products-grid::-webkit-scrollbar-thumb,
+.services-grid::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.products-grid::-webkit-scrollbar-thumb:hover,
+.services-grid::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 📌 Sección del carrito (derecha) */
+.sales-container .cart-section {
+    flex: 0 0 520px; /* Ancho fijo */
+    max-width: 520px;
+    overflow-y: auto;
+    padding: 15px;
+    padding-top: 25px;
+}

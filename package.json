@@ -1,0 +1,91 @@
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start",
+    "compile-sass": "sass src/assets/scss/paper-dashboard.scss src/assets/css/paper-dashboard.css",
+    "minify-sass": "sass src/assets/scss/paper-dashboard.scss src/assets/css/paper-dashboard.min.css --style compressed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creativetimofficial/ct-paper-dashboard-pro-react.git"
+  },
+  "keywords": [
+    "react",
+    "admin",
+    "reactjs",
+    "bootstrap",
+    "bootstrap4",
+    "reactstrap"
+  ],
+  "author": "Estuardo Saban",
+  "bugs": {
+    "url": "https://github.com/creativetimofficial/ct-paper-dashboard-pro-react/issues"
+  },
+  "homepage": ".",
+  "dependencies": {
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2",
+    "axios": "^1.11.0",
+    "bootstrap": "5.3.7",
+    "chart.js": "4.5.0",
+    "classnames": "2.5.1",
+    "match-sorter": "8.1.0",
+    "moment": "2.30.1",
+    "nouislider": "15.8.1",
+    "perfect-scrollbar": "1.5.6",
+    "prop-types": "15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-big-calendar": "1.19.4",
+    "react-bootstrap-sweetalert": "5.2.0",
+    "react-bootstrap-switch": "15.5.3",
+    "react-bootstrap-wizard": "0.0.9",
+    "react-chartjs-2": "5.3.0",
+    "react-datepicker": "^8.4.0",
+    "react-datetime": "3.3.1",
+    "react-jvectormap": "0.0.16",
+    "react-notification-alert": "0.0.13",
+    "react-router": "^6.30.1",
+    "react-router-dom": "^6.30.1",
+    "react-scripts": "5.0.1",
+    "react-select": "5.10.2",
+    "react-table": "7.8.0",
+    "react-tagsinput": "3.20.3",
+    "reactstrap": "9.2.3",
+    "sass": "1.89.2"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "optionalDependencies": {
+    "typescript": "5.9.2"
+  },
+  "overrides": {
+    "svgo": "3.0.2",
+    "fsevents": "2.3.2",
+    "chokidar": "3.5.3",
+    "@babel/core": "7.18.6",
+    "csso": "^4.2.0"
+  },
+  "resolutions": {
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
+    "schema-utils": "^2.7.1",
+    "webpack": "^4.44.2",
+    "csso": "^4.2.0",
+    "css-minimizer-webpack-plugin": "^2.0.0",
+    "optimize-css-assets-webpack-plugin": "^6.0.1"
+  }
+  
+}

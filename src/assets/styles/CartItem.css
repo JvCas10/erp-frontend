@@ -1,0 +1,192 @@
+.cart-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 60px;
+    height: auto;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 5px;
+    gap: 8px;
+}
+
+/* Contenedor para la imagen */
+.cart-item-img-container {
+    min-width: 50px;
+    max-width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Imagen del producto */
+.cart-item-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+}
+
+/* Información del producto */
+.cart-item-info {
+    flex: 1;
+    min-width: 120px;
+    max-width: 120px;
+    margin-left: 5px;
+}
+
+.cart-item-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    display: block;
+}
+
+.cart-item-description {
+    font-size: 12px;
+    color: #7a7c81;
+}
+
+/* Precio Unitario */
+.cart-item-price-unit {
+    min-width: 80px;
+    max-width: 80px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+/* Contenedor de cantidad */
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    max-width: 100px;
+    background-color: var(--primary-color);
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* Botones de cantidad */
+.quantity-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease-in-out;
+    border-radius: 3px;
+    line-height: 1;
+}
+
+.quantity-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.quantity-btn:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.quantity-btn:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+/* Valor de cantidad */
+.quantity-value {
+    background-color: white;
+    color: var(--color-text-primary);
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+/* Símbolo "=" */
+.cart-item-equal {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    text-align: center;
+    min-width: 20px;
+}
+
+/* Precio total */
+.cart-item-price-total {
+    min-width: 120px;
+    max-width: 120px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    text-align: center;
+    word-wrap: break-word;
+    overflow: visible;
+}
+
+/* 🟣 Establecer Scroll si hay muchos productos */
+.cart-items-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* 🎨 Personalizar el Scroll */
+.cart-items-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 4px;
+}
+
+.cart-items-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Grupo de entradas para cantidad */
+.cart-item-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+    max-width: 100px;
+}
+
+.cart-item-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.cart-item-input {
+    width: 80px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.cart-item-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+}

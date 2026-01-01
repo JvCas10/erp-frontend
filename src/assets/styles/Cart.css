@@ -1,0 +1,130 @@
+/* Contenedor principal del carrito */
+.master-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  gap: 15px;
+}
+
+/* Estilo general de las tarjetas del carrito */
+.card-venta {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+/* Sección del título */
+.card-venta .title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--color-text-primary); 
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* Estilos para la lista de productos en el carrito */
+.products {
+  max-height: 250px; /* Límite de altura para scroll */
+  overflow-y: auto;
+  padding-right: 5px;
+  padding-top: 10px;
+}
+
+/* Scroll personalizado */
+.products::-webkit-scrollbar {
+  width: 8px;
+}
+
+.products::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 4px;
+}
+
+.products::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Estilos individuales de cada producto */
+.product {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Precio */
+.price {
+  font-size: 22px;
+  color: #2B2B2F;
+  font-weight: 900;
+  color: var(--color-text-primary);
+}
+
+/* Sección de selección de cliente */
+.client-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.client-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.client-info {
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+}
+
+/* Checkout (Resumen y botón de confirmación) */
+.checkout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.checkout--footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 15px;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+}
+
+.checkout-btn {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.checkout-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.checkout-btn:hover {
+  background-color: var(--text-color);
+}
