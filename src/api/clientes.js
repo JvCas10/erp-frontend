@@ -37,32 +37,44 @@ export const createCliente = async (clienteData) => {
 
 // Función para actualizar un cliente
 export const updateCliente = async (clienteData) => {
-    try {
-        const response = await axios.put(`${API_URL}/cliente/`, clienteData);
+  try {
+    const payload = {
+      cliente_id: clienteData.cliente_id,
+      nombre_completo: clienteData.nombre_completo,
+      correo: clienteData.correo,
+      telefono: clienteData.telefono,
+      direccion: clienteData.direccion,
+      instagram_usuario: clienteData.instagram_usuario,
+    };
 
-        if (response.data.status === "success") {
-            return { success: true, message: response.data.message };
-        } else {
-            return { success: false, message: response.data.message };
-        }
-    } catch (error) {
-        console.error("Error al actualizar cliente:", error);
-        return { success: false, message: "Error de conexión con el servidor." };
+    const response = await axios.put(`${API_URL}/cliente/`, payload);
+
+    if (response.data.status === "success") {
+      return { success: true, message: response.data.message };
+    } else {
+      return { success: false, message: response.data.message };
     }
+  } catch (error) {
+    console.error("Error al actualizar cliente:", error);
+    return { success: false, message: "Error de conexión con el servidor." };
+  }
 };
 
-// Función para eliminar un cliente
-export const deleteCliente = async (id_cliente) => {
-    try {
-        const response = await axios.delete(`${API_URL}/cliente`, {data : {id_cliente}});
 
-        if (response.data.status === "success") {
-            return { success: true, message: response.data.message };
-        } else {
-            return { success: false, message: response.data.message };
-        }
-    } catch (error) {
-        console.error("Error al eliminar cliente:", error);
-        return { success: false, message: "Error de conexión con el servidor." };
+// Función para eliminar un cliente
+export const deleteCliente = async (cliente_id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/cliente`, {
+      data: { cliente_id }, // ✅ nombre correcto
+    });
+
+    if (response.data.status === "success") {
+      return { success: true, message: response.data.message };
+    } else {
+      return { success: false, message: response.data.message };
     }
+  } catch (error) {
+    console.error("Error al eliminar cliente:", error);
+    return { success: false, message: "Error de conexión con el servidor." };
+  }
 };
