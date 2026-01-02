@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/auth/login`;
+const API_URL = (process.env.REACT_APP_API_URL || 'http://localhost:3000/api') + '/auth/login';
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
