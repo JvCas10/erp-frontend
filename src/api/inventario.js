@@ -34,19 +34,26 @@ axios.interceptors.response.use(
 // Obtener inventario
 export const obtenerInventario = async () => {
   try {
-    console.log("Obteniendo inventario desde la API...", API_URL);
     const response = await axios.get(`${API_URL}/inventario/`);
+
     if (response.data.status === "success") {
-      return response.data.productos;
-    } else {
-      console.error("Error en la respuesta del servidor:", response.data.message);
-      return [];
+      const lista =
+        response.data.inventario ??
+        response.data.productos ??
+        response.data.items ??
+        [];
+
+      return Array.isArray(lista) ? lista : [];
     }
+
+    console.error("Error en la respuesta del servidor:", response.data.message);
+    return [];
   } catch (error) {
     console.error("Error al obtener inventario:", error);
     throw error;
   }
 };
+
 
 // Helper para construir FormData desde el objeto de producto
 const buildProductoFormData = (productoData) => {
@@ -129,10 +136,10 @@ export const actualizarProducto = async (productoData) => {
 };
 
 // Eliminar producto
-export const eliminarProducto = async (id) => {
+export const eliminarProducto = async (producto_id) => {
   try {
     const response = await axios.delete(`${API_URL}/producto`, {
-      data: { id },
+      data: { producto_id }, // ✅
     });
 
     if (response.data.status === "success") {
