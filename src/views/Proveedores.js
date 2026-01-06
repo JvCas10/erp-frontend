@@ -106,7 +106,12 @@ function Proveedores() {
     setProveedorActual({ ...proveedorActual, [e.target.name]: e.target.value });
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false); // ← AGREGAR
+
   const handleSubmit = async () => {
+    if (isSubmitting) return; // ← AGREGAR
+    setIsSubmitting(true); // ← AGREGAR
+
     const proveedorData = {
       ...proveedorActual,
       fecha_registro: getCurrentDateTime(),
@@ -121,13 +126,15 @@ function Proveedores() {
       }
 
       alert(response.message);
-      if (response.success) {
+      if (response.status === 'success') { // ← CAMBIAR de response.success
         setIsModalOpen(false);
         fetchProveedores();
         setProveedorActual(initialProveedor);
       }
     } catch (error) {
       console.error("Error al guardar proveedor:", error);
+    } finally {
+      setIsSubmitting(false); // ← AGREGAR
     }
   };
 
@@ -266,7 +273,11 @@ function Proveedores() {
           <Button color="secondary" onClick={() => setIsModalOpen(false)}>
             Cancelar
           </Button>
-          <Button color="success" onClick={handleSubmit} disabled={!isFormValid}>
+          <Button
+            color="success"
+            onClick={handleSubmit}
+            disabled={!isFormValid || isSubmitting} // ← AGREGAR isSubmitting
+          >
             {proveedorActual.proveedor_id ? "Actualizar" : "Guardar"}
           </Button>
         </ModalFooter>
