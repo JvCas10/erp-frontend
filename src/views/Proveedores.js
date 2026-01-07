@@ -44,7 +44,6 @@ function Proveedores() {
   const [proveedoresRaw, setProveedoresRaw] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [proveedorActual, setProveedorActual] = useState(initialProveedor);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchProveedores = async () => {
     try {
@@ -96,52 +95,29 @@ function Proveedores() {
     if (!window.confirm("¿Estás seguro de eliminar este proveedor?")) return;
     try {
       const response = await deleteProveedor(id);
-      alert(response.message || "Proveedor eliminado");
+      alert(response.message);
       fetchProveedores();
     } catch (error) {
       console.error("Error al eliminar proveedor:", error);
-      alert("Error al eliminar proveedor");
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Solo permitir números en teléfono
-    if (name === 'telefono' && value && !/^\d*$/.test(value)) {
-      return;
+    // SOLO validar que teléfono sea numérico
+    if (name === 'telefono') {
+      // Si no está vacío Y no es número, no actualizar
+      if (value !== '' && !/^\d+$/.test(value)) {
+        alert("El teléfono solo puede contener números");
+        return;
+      }
     }
     
     setProveedorActual({ ...proveedorActual, [name]: value });
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
-
-    // Validaciones
-    if (!proveedorActual.nombre.trim()) {
-      alert("El nombre es requerido");
-      return;
-    }
-    if (!proveedorActual.correo.trim()) {
-      alert("El correo es requerido");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proveedorActual.correo)) {
-      alert("Ingresa un correo válido");
-      return;
-    }
-    if (!proveedorActual.telefono || proveedorActual.telefono.length < 7) {
-      alert("Ingresa un teléfono válido (mínimo 7 dígitos)");
-      return;
-    }
-    if (!proveedorActual.direccion.trim()) {
-      alert("La dirección es requerida");
-      return;
-    }
-
-    setIsSubmitting(true);
-
     const proveedorData = {
       ...proveedorActual,
       fecha_registro: getCurrentDateTime(),
@@ -155,28 +131,19 @@ function Proveedores() {
         response = await createProveedor(proveedorData);
       }
 
-      if (response.status === 'success') {
-        alert(response.message || "Operación exitosa");
-        setIsModalOpen(false);
-        setProveedorActual(initialProveedor);
-        fetchProveedores();
-      } else {
-        alert(response.message || "Error al guardar");
-      }
+      alert(response.message);
+      setIsModalOpen(false);
+      fetchProveedores();
+      setProveedorActual(initialProveedor);
     } catch (error) {
       console.error("Error al guardar proveedor:", error);
-      alert("Error al guardar proveedor");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const isFormValid =
     proveedorActual.nombre.trim() &&
     proveedorActual.correo.trim() &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proveedorActual.correo) &&
-    proveedorActual.telefono &&
-    proveedorActual.telefono.length >= 7 &&
+    String(proveedorActual.telefono).trim() &&
     proveedorActual.direccion.trim();
 
   const handleExport = () => {
@@ -261,7 +228,7 @@ function Proveedores() {
             <Row>
               <Col md="6">
                 <FormGroup>
-                  <Label>Nombre *</Label>
+                  <Label>Nombre</Label>
                   <Input
                     name="nombre"
                     value={proveedorActual.nombre}
@@ -271,7 +238,7 @@ function Proveedores() {
               </Col>
               <Col md="6">
                 <FormGroup>
-                  <Label>Correo *</Label>
+                  <Label>Correo</Label>
                   <Input
                     name="correo"
                     type="email"
@@ -284,18 +251,17 @@ function Proveedores() {
             <Row>
               <Col md="6">
                 <FormGroup>
-                  <Label>Teléfono * (solo números)</Label>
+                  <Label>Teléfono</Label>
                   <Input
                     name="telefono"
                     value={proveedorActual.telefono}
                     onChange={handleInputChange}
-                    placeholder="Ej: 123456789"
                   />
                 </FormGroup>
               </Col>
               <Col md="6">
                 <FormGroup>
-                  <Label>Dirección *</Label>
+                  <Label>Dirección</Label>
                   <Input
                     name="direccion"
                     value={proveedorActual.direccion}
@@ -310,12 +276,8 @@ function Proveedores() {
           <Button color="secondary" onClick={() => setIsModalOpen(false)}>
             Cancelar
           </Button>
-          <Button 
-            color="success" 
-            onClick={handleSubmit} 
-            disabled={!isFormValid || isSubmitting}
-          >
-            {isSubmitting ? "Guardando..." : (proveedorActual.proveedor_id ? "Actualizar" : "Guardar")}
+          <Button color="success" onClick={handleSubmit} disabled={!isFormValid}>
+            {proveedorActual.proveedor_id ? "Actualizar" : "Guardar"}
           </Button>
         </ModalFooter>
       </Modal>
