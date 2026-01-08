@@ -35,10 +35,9 @@ export const createCompra = async (compraData) => {
     }
 };
 
-// Funcion para eliminar una compra
 export const deleteCompra = async (id) => {
     try {
-        const response = await axios.delete(`${API_URL}/compra`, {data : {id}});
+        const response = await axios.delete(`${API_URL}/compra/${id}`); // ← CAMBIO AQUÍ
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
