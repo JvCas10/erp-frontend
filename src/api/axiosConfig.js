@@ -1,4 +1,4 @@
-// src/api/axiosConfig.js
+// src/api/axiosConfig.js (sin cambios)
 import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -7,7 +7,6 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
 });
 
-// Interceptor para agregar tenant y token
 axiosInstance.interceptors.request.use(
   (config) => {
     // Agregar tenant desde localStorage

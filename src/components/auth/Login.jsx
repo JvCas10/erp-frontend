@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import axios from 'axios';
 
-const API_URL = `${process.env.REACT_APP_API_URL}/auth/login`;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Login = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [tenant, setTenant] = useState('');
+  const [tenants, setTenants] = useState([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
@@ -14,14 +17,36 @@ const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
+  // Cargar lista de tenants al montar
+  useEffect(() => {
+    const fetchTenants = async () => {
+      try {
+        const { data } = await axios.get(`${API_URL}/admin/tenants`);
+        setTenants(data.tenants || []);
+        // Si solo hay uno, seleccionarlo automáticamente
+        if (data.tenants?.length === 1) {
+          setTenant(data.tenants[0].subdomain);
+        }
+      } catch (error) {
+        console.error('Error cargando tenants:', error);
+        // Lista hardcodeada de respaldo
+        setTenants([
+          { subdomain: 'prueba', empresa_nombre: 'Tienda Prueba' },
+          { subdomain: 'negocio2', empresa_nombre: 'Negocio 2' },
+          { subdomain: 'negocioDemo', empresa_nombre: 'Negocio Demo' },
+          { subdomain: 'negocio1', empresa_nombre: 'Negocio 1' },
+          { subdomain: 'demo', empresa_nombre: 'Empresa Demo' }
+        ]);
+      }
+    };
+    fetchTenants();
+  }, []);
+
   // Función para crear gradiente dinámico basado en el color primario
   const createGradient = (primaryColor) => {
     if (!primaryColor || primaryColor === '#3498db') {
-      // Gradiente por defecto si no hay color personalizado
       return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
-    
-    // Crear un gradiente usando el color primario y una variación más oscura
     const darkerColor = adjustBrightness(primaryColor, -30);
     return `linear-gradient(135deg, ${primaryColor} 0%, ${darkerColor} 100%)`;
   };
@@ -44,7 +69,10 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_URL, {
+      // Guardar tenant en localStorage ANTES de hacer login
+      localStorage.setItem('tenant', tenant);
+
+      const response = await fetch(`${API_URL}/auth/login?tenant=${tenant}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,23 +167,39 @@ const Login = ({ onLoginSuccess }) => {
     boxShadow: `0 0 0 3px ${theme?.primaryColor ? theme.primaryColor + '1a' : 'rgba(66, 153, 225, 0.1)'}`
   };
 
+  const selectStyle = {
+    ...inputStyle,
+    cursor: 'pointer',
+    appearance: 'none',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 16px center',
+    paddingRight: '40px'
+  };
+
+  const selectFocusStyle = {
+    ...selectStyle,
+    borderColor: theme?.primaryColor || '#4299e1',
+    boxShadow: `0 0 0 3px ${theme?.primaryColor ? theme.primaryColor + '1a' : 'rgba(66, 153, 225, 0.1)'}`
+  };
+
   const buttonStyle = {
     width: '100%',
     height: '48px',
-    backgroundColor: isLoading || !username || !password ? '#a0aec0' : (theme?.primaryColor || '#4299e1'),
+    backgroundColor: isLoading || !username || !password || !tenant ? '#a0aec0' : (theme?.primaryColor || '#4299e1'),
     color: '#ffffff',
     border: 'none',
     borderRadius: '12px',
     fontSize: '16px',
     fontWeight: '600',
-    cursor: isLoading || !username || !password ? 'not-allowed' : 'pointer',
+    cursor: isLoading || !username || !password || !tenant ? 'not-allowed' : 'pointer',
     transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     outline: 'none',
     transform: 'translateY(0)',
-    boxShadow: isLoading || !username || !password ? 'none' : `0 4px 12px ${theme?.primaryColor ? theme.primaryColor + '66' : 'rgba(66, 153, 225, 0.4)'}`
+    boxShadow: isLoading || !username || !password || !tenant ? 'none' : `0 4px 12px ${theme?.primaryColor ? theme.primaryColor + '66' : 'rgba(66, 153, 225, 0.4)'}`
   };
 
   const buttonHoverStyle = {
@@ -206,6 +250,27 @@ const Login = ({ onLoginSuccess }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
+          {/* Tenant Selector */}
+          <div>
+            <label style={labelStyle}>Empresa / Negocio</label>
+            <select
+              value={tenant}
+              onChange={(e) => setTenant(e.target.value)}
+              onFocus={() => setFocusedInput('tenant')}
+              onBlur={() => setFocusedInput(null)}
+              style={focusedInput === 'tenant' ? selectFocusStyle : selectStyle}
+              required
+              disabled={isLoading}
+            >
+              <option value="">Selecciona tu empresa...</option>
+              {tenants.map((t) => (
+                <option key={t.subdomain} value={t.subdomain}>
+                  {t.empresa_nombre} ({t.subdomain})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Username */}
           <div>
             <label style={labelStyle}>Usuario</label>
@@ -241,10 +306,10 @@ const Login = ({ onLoginSuccess }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!username || !password || isLoading}
+            disabled={!username || !password || !tenant || isLoading}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
-            style={isHovering && !isLoading && username && password ? buttonHoverStyle : buttonStyle}
+            style={isHovering && !isLoading && username && password && tenant ? buttonHoverStyle : buttonStyle}
           >
             {isLoading ? (
               <>
