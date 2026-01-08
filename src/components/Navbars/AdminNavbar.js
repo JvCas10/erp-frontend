@@ -25,6 +25,9 @@ function AdminNavbar(props) {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [color, setColor] = React.useState("navbar-transparent");
+  const [currentTenant, setCurrentTenant] = React.useState(
+    localStorage.getItem('tenant') || 'prueba'
+  );
   const location = useLocation();
   const { theme } = useTheme();
 
@@ -58,6 +61,14 @@ function AdminNavbar(props) {
   const toggleCollapse = () => {
     setColor(!collapseOpen ? "bg-white" : "navbar-transparent");
     setCollapseOpen(!collapseOpen);
+  };
+
+  const handleTenantChange = (e) => {
+    const newTenant = e.target.value;
+    setCurrentTenant(newTenant);
+    localStorage.setItem('tenant', newTenant);
+    // Recargar página para aplicar cambio
+    window.location.reload();
   };
 
   return (
@@ -131,6 +142,28 @@ function AdminNavbar(props) {
               </InputGroup>
             </Form>
             <Nav navbar>
+              {/* 🆕 SELECTOR DE TENANT */}
+              <NavItem style={{ marginRight: '15px' }}>
+                <select
+                  value={currentTenant}
+                  onChange={handleTenantChange}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #ddd',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  <option value="prueba">🏢 Prueba</option>
+                  <option value="negocio2">🏢 Negocio 2</option>
+                  <option value="negocioDemo">🏢 Negocio Demo</option>
+                  <option value="negocio1">🏢 Negocio 1</option>
+                  <option value="demo">🏢 Demo</option>
+                </select>
+              </NavItem>
+
               <NavItem>
                 <NavLink
                   className="btn-magnify"
