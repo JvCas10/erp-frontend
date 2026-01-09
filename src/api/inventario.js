@@ -1,40 +1,9 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
-
-// ✅ Configurar interceptor para incluir automáticamente el token
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// ✅ Interceptor para manejar respuestas y errores de autenticación
-axios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado o inválido
-      localStorage.removeItem('authToken');
-      window.location.href = '/auth/login';
-    }
-    return Promise.reject(error);
-  }
-);
+import axiosInstance from "./axiosConfig";
 
 // Obtener inventario
 export const obtenerInventario = async () => {
   try {
-    const response = await axios.get(`${API_URL}/inventario/`);
+    const response = await axiosInstance.get('/inventario/');
 
     if (response.data.status === "success") {
       const lista =
@@ -54,7 +23,6 @@ export const obtenerInventario = async () => {
   }
 };
 
-
 // Helper para construir FormData desde el objeto de producto
 const buildProductoFormData = (productoData) => {
   const formData = new FormData();
@@ -66,7 +34,6 @@ const buildProductoFormData = (productoData) => {
     if (key === "foto" && value instanceof File) {
       formData.append(key, value);
     } else if (key === "precio" || key === "stock" || key === "producto_id") {
-      // Asegurar que sean valores primitivos (números o strings)
       formData.append(key, value);
     } else {
       formData.append(key, value);
@@ -81,7 +48,6 @@ export const crearProducto = async (productoData) => {
   try {
     const formData = buildProductoFormData(productoData);
 
-    // Debug: ver contenido real
     for (let [k, v] of formData.entries()) {
       if (v instanceof File) {
         console.log(`${k}: (File) ${v.name} ${v.type} ${v.size}`);
@@ -90,10 +56,7 @@ export const crearProducto = async (productoData) => {
       }
     }
 
-    const response = await axios.post(`${API_URL}/producto/`, formData, {
-      // axios infiere el Content-Type con boundary; ponerlo explícito puede romperlo si no se calcula bien
-      // headers: { "Content-Type": "multipart/form-data" },
-    });
+    const response = await axiosInstance.post('/producto/', formData);
 
     if (response.data.status === "success") {
       return { success: true, message: response.data.message };
@@ -106,12 +69,11 @@ export const crearProducto = async (productoData) => {
   }
 };
 
-// Actualizar producto (también con FormData, porque puede incluir foto)
+// Actualizar producto
 export const actualizarProducto = async (productoData) => {
   try {
     const formData = buildProductoFormData(productoData);
 
-    // Debug opcional
     for (let [k, v] of formData.entries()) {
       if (v instanceof File) {
         console.log(`${k}: (File) ${v.name} ${v.type} ${v.size}`);
@@ -120,9 +82,7 @@ export const actualizarProducto = async (productoData) => {
       }
     }
 
-    const response = await axios.put(`${API_URL}/producto/`, formData, {
-      // headers: { "Content-Type": "multipart/form-data" },
-    });
+    const response = await axiosInstance.put('/producto/', formData);
 
     if (response.data.status === "success") {
       return { success: true, message: response.data.message };
@@ -138,8 +98,8 @@ export const actualizarProducto = async (productoData) => {
 // Eliminar producto
 export const eliminarProducto = async (producto_id) => {
   try {
-    const response = await axios.delete(`${API_URL}/producto`, {
-      data: { producto_id }, // ✅
+    const response = await axiosInstance.delete('/producto', {
+      data: { producto_id },
     });
 
     if (response.data.status === "success") {

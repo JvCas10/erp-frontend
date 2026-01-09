@@ -1,19 +1,14 @@
-import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from './axiosConfig';
 
 // Funcion para obtener la configuracion
 export const getConfig = async () => {
-
-    const response = await axios.get(`${API_URL}/config`);
+    const response = await axiosInstance.get('/config');
     return response.data;
 };
 
 // Funcion para actualizar la configuracion
 export const updateConfig = async (config) => {
-
     console.log(config);
-
-    const response = await axios.put(`${API_URL}/config`, config);
+    const response = await axiosInstance.put('/config', config);
     return response.data;
-}; 
+};

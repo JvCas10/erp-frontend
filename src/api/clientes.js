@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Función para obtener todos los clientes
 export const getClientes = async () => {
     try {
-        const response = await axios.get(`${API_URL}/cliente/`);
+        const response = await axiosInstance.get('/cliente/');
         
         if (response.data.status === "success") {
-            return response.data.clientes; // Retorna solo la lista de clientes
+            return response.data.clientes;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,7 +20,7 @@ export const getClientes = async () => {
 // Funcion para crear un nuevo cliente
 export const createCliente = async (clienteData) => {
     try {
-        const response = await axios.post(`${API_URL}/cliente/`, clienteData);
+        const response = await axiosInstance.post('/cliente/', clienteData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -47,7 +45,7 @@ export const updateCliente = async (clienteData) => {
       instagram_usuario: clienteData.instagram_usuario,
     };
 
-    const response = await axios.put(`${API_URL}/cliente/`, payload);
+    const response = await axiosInstance.put('/cliente/', payload);
 
     if (response.data.status === "success") {
       return { success: true, message: response.data.message };
@@ -60,12 +58,11 @@ export const updateCliente = async (clienteData) => {
   }
 };
 
-
 // Función para eliminar un cliente
 export const deleteCliente = async (cliente_id) => {
   try {
-    const response = await axios.delete(`${API_URL}/cliente`, {
-      data: { cliente_id }, // ✅ nombre correcto
+    const response = await axiosInstance.delete('/cliente', {
+      data: { cliente_id },
     });
 
     if (response.data.status === "success") {

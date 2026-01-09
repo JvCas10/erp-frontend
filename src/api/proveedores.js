@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Función para obtener todos los proveedores
 export const getProveedores = async () => {
     try {
-        const response = await axios.get(`${API_URL}/proveedor/`);
+        const response = await axiosInstance.get('/proveedor/');
         
         if (response.data.status === "success") {
-            return response.data.proveedores; // Retorna solo la lista de proveedores
+            return response.data.proveedores;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,7 +20,7 @@ export const getProveedores = async () => {
 // Funcion para crear un nuevo proveedor
 export const createProveedor = async (proveedorData) => {
     try {
-        const response = await axios.post(`${API_URL}/proveedor/`, proveedorData);
+        const response = await axiosInstance.post('/proveedor/', proveedorData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -36,10 +34,9 @@ export const createProveedor = async (proveedorData) => {
 };
 
 // Función para actualizar un proveedor
-
 export const updateProveedor = async (proveedorData) => {
     try {
-        const response = await axios.put(`${API_URL}/proveedor/`, proveedorData);
+        const response = await axiosInstance.put('/proveedor/', proveedorData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -53,10 +50,11 @@ export const updateProveedor = async (proveedorData) => {
 }
 
 // Función para eliminar un proveedor
-
 export const deleteProveedor = async (id_proveedor) => {
     try {
-        const response = await axios.delete(`${API_URL}/proveedor`, {data : {id_proveedor}});
+        const response = await axiosInstance.delete('/proveedor', {
+            data: { id_proveedor }
+        });
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };

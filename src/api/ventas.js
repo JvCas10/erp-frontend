@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Funcion para obtener todas las ventas
 export const getVentas = async () => {
     try {
-        const response = await axios.get(`${API_URL}/venta/`);
+        const response = await axiosInstance.get('/venta/');
         
         if (response.data.status === "success") {
-            return response.data.ventas; // Retorna solo la lista de ventas
+            return response.data.ventas;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,7 +20,7 @@ export const getVentas = async () => {
 // Funcion para crear una nueva venta
 export const createVenta = async (ventaData) => {
     try {
-        const response = await axios.post(`${API_URL}/venta/`, ventaData);
+        const response = await axiosInstance.post('/venta/', ventaData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -38,7 +36,9 @@ export const createVenta = async (ventaData) => {
 // Funcion para eliminar una venta
 export const deleteVenta = async (id) => {
     try {
-        const response = await axios.delete(`${API_URL}/venta`, {data : {id}});
+        const response = await axiosInstance.delete('/venta', {
+            data: { id }
+        });
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };

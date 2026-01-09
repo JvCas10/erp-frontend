@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Funcion para obtener todas las compras
 export const getCompras = async () => {
     try {
-        const response = await axios.get(`${API_URL}/compra/`);
+        const response = await axiosInstance.get('/compra/');
         
         if (response.data.status === "success") {
-            return response.data.compras; // Retorna solo la lista de compras
+            return response.data.compras;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,7 +20,7 @@ export const getCompras = async () => {
 // Funcion para crear una nueva compra
 export const createCompra = async (compraData) => {
     try {
-        const response = await axios.post(`${API_URL}/compra/`, compraData);
+        const response = await axiosInstance.post('/compra/', compraData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -37,7 +35,7 @@ export const createCompra = async (compraData) => {
 
 export const deleteCompra = async (id) => {
     try {
-        const response = await axios.delete(`${API_URL}/compra/${id}`); // ← CAMBIO AQUÍ
+        const response = await axiosInstance.delete(`/compra/${id}`);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };

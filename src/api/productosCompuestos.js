@@ -14,10 +14,9 @@ export const crearProductoCompuesto = async (data) => {
 
   const response = await axiosInstance.post(
     "/productos-compuestos",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    formData
+    // ❌ NO poner Content-Type manualmente con FormData
+    // axios lo configura automáticamente con el boundary correcto
   );
 
   return response.data;
@@ -39,10 +38,8 @@ export const actualizarProductoCompuesto = async (data) => {
 
   const response = await axiosInstance.put(
     `/productos-compuestos/${data.producto_compuesto_id}`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    formData
+    // ❌ NO poner Content-Type manualmente
   );
 
   return response.data;

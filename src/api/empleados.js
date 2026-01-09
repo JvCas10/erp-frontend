@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Funcion para obtener todos los empleados
 export const getEmployees = async () => {
     try {
-        const response = await axios.get(`${API_URL}/empleado/`);
+        const response = await axiosInstance.get('/empleado/');
         
         if (response.data.status === "success") {
-            return response.data.empleados; // Retorna solo la lista de empleados
+            return response.data.empleados;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,7 +20,7 @@ export const getEmployees = async () => {
 // Funcion para crear un nuevo empleado
 export const createEmployee = async (empleadoData) => {
     try {
-        const response = await axios.post(`${API_URL}/empleado/`, empleadoData);
+        const response = await axiosInstance.post('/empleado/', empleadoData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -35,10 +33,10 @@ export const createEmployee = async (empleadoData) => {
     }
 };
 
-// Función para actualizar un cliente
+// Función para actualizar un empleado
 export const updateEmployee = async (empleadoData) => {
     try {
-        const response = await axios.put(`${API_URL}/empleado/`, empleadoData);
+        const response = await axiosInstance.put('/empleado/', empleadoData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -54,7 +52,9 @@ export const updateEmployee = async (empleadoData) => {
 // Funcion para eliminar un empleado
 export const deleteEmployee = async (empleado_id) => {
     try {
-        const response = await axios.delete(`${API_URL}/empleado`, { data: { empleado_id } });
+        const response = await axiosInstance.delete('/empleado', { 
+            data: { empleado_id } 
+        });
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };

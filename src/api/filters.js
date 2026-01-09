@@ -1,11 +1,9 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Funcion para obtener todos los nombres de los clientes
 export const getClientesNombres = async () => {
     try {
-        const response = await axios.get(`${API_URL}/cliente/nombres/clientes`);
+        const response = await axiosInstance.get('/cliente/nombres/clientes');
 
         if (response.data.status === "success"){
             return response.data.clientes.map(cliente => cliente.nombre_completo);
@@ -22,7 +20,7 @@ export const getClientesNombres = async () => {
 // Funcion para obtener todos los nombres de los empleados
 export const getEmployeesNames = async () => {
     try {
-        const response = await axios.get(`${API_URL}/empleado/nombres/empleados`);
+        const response = await axiosInstance.get('/empleado/nombres/empleados');
 
         if (response.data.status === "success"){
             return response.data.empleados.map(empleado => empleado.nombre_completo);
@@ -39,7 +37,7 @@ export const getEmployeesNames = async () => {
 // Funcion para obtener los nombres de los productos
 export const getProductosNombres = async () => {
     try {
-        const response = await axios.get(`${API_URL}/producto/nombres/productos`);
+        const response = await axiosInstance.get('/producto/nombres/productos');
 
         if (response.data.status === "success"){
             return response.data.productos.map(producto => producto.nombre);
@@ -56,7 +54,7 @@ export const getProductosNombres = async () => {
 // Funcion para obtener los nombres de los proveedores
 export const getProveedoresNombres = async () => {
     try {
-        const response = await axios.get(`${API_URL}/proveedor/nombres/proveedores`);
+        const response = await axiosInstance.get('/proveedor/nombres/proveedores');
 
         if (response.data.status === "success"){
             return response.data.proveedores.map(proveedor => proveedor.nombre);
@@ -73,7 +71,7 @@ export const getProveedoresNombres = async () => {
 // Funcion para obtener los colores de los productos
 export const getColoresProductos = async () => {
     try {
-        const response = await axios.get(`${API_URL}/producto/colores/productos`);
+        const response = await axiosInstance.get('/producto/colores/productos');
 
         if (response.data.status === "success"){
             return response.data.colores.map(color => color.color);
@@ -90,7 +88,7 @@ export const getColoresProductos = async () => {
 // Funcion para obtener las categorias de los productos
 export const getCategoriasProductos = async () => {
     try {
-        const response = await axios.get(`${API_URL}/producto/categorias/productos`);
+        const response = await axiosInstance.get('/producto/categorias/productos');
 
         if (response.data.status === "success"){
             return response.data.categorias.map(categoria => categoria.categoria);

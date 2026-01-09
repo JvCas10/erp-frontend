@@ -1,14 +1,12 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import axiosInstance from "./axiosConfig";
 
 // Funcion para obtener todos los servicios
 export const getServices = async () => {
     try {
-        const response = await axios.get(`${API_URL}/servicio/`);
+        const response = await axiosInstance.get('/servicio/');
         
         if (response.data.status === "success") {
-            return response.data.servicios; // Retorna solo la lista de servicios
+            return response.data.servicios;
         } else {
             console.error("Error en la respuesta del servidor:", response.data.message);
             return [];
@@ -22,11 +20,7 @@ export const getServices = async () => {
 // Funcion para crear un nuevo servicio
 export const createService = async (formData) => {
     try {
-        const response = await axios.post(`${API_URL}/servicio/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        const response = await axiosInstance.post('/servicio/', formData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -42,11 +36,7 @@ export const createService = async (formData) => {
 // Función para actualizar un servicio
 export const updateService = async (formData) => {
     try {
-        const response = await axios.put(`${API_URL}/servicio/`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        const response = await axiosInstance.put('/servicio/', formData);
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
@@ -62,7 +52,9 @@ export const updateService = async (formData) => {
 // Funcion para eliminar un servicio
 export const deleteService = async (id) => {
     try {
-        const response = await axios.delete(`${API_URL}/servicio`, { data: { id } });
+        const response = await axiosInstance.delete('/servicio', { 
+            data: { id } 
+        });
 
         if (response.data.status === "success") {
             return { success: true, message: response.data.message };
