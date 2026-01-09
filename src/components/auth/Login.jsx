@@ -1,6 +1,6 @@
+// src/components/auth/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -15,43 +15,34 @@ const Login = ({ onLoginSuccess }) => {
   const [focusedInput, setFocusedInput] = useState(null);
   const [isHovering, setIsHovering] = useState(false);
   const navigate = useNavigate();
-  const { theme } = useTheme();
 
-  // Cargar lista de tenants al montar
+  // ⭐ COLORES FIJOS PARA LOGIN (no dependen del tenant)
+  const LOGIN_PRIMARY_COLOR = '#667eea';
+  const LOGIN_SECONDARY_COLOR = '#764ba2';
+
   useEffect(() => {
     const fetchTenants = async () => {
       try {
         const { data } = await axios.get(`${API_URL}/admin/tenants`);
         setTenants(data.tenants || []);
-        // Si solo hay uno, seleccionarlo automáticamente
         if (data.tenants?.length === 1) {
           setTenant(data.tenants[0].subdomain);
         }
       } catch (error) {
         console.error('Error cargando tenants:', error);
-        // Lista hardcodeada de respaldo
         setTenants([
           { subdomain: 'prueba', empresa_nombre: 'Tienda Prueba' },
-          { subdomain: 'negocio2', empresa_nombre: 'Negocio 2' },
-          { subdomain: 'negocioDemo', empresa_nombre: 'Negocio Demo' },
-          { subdomain: 'negocio1', empresa_nombre: 'Negocio 1' },
-          { subdomain: 'demo', empresa_nombre: 'Empresa Demo' }
+          { subdomain: 'negocio2', empresa_nombre: 'Negocio 2' }
         ]);
       }
     };
     fetchTenants();
   }, []);
 
-  // Función para crear gradiente dinámico basado en el color primario
-  const createGradient = (primaryColor) => {
-    if (!primaryColor || primaryColor === '#3498db') {
-      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    }
-    const darkerColor = adjustBrightness(primaryColor, -30);
-    return `linear-gradient(135deg, ${primaryColor} 0%, ${darkerColor} 100%)`;
+  const createGradient = () => {
+    return `linear-gradient(135deg, ${LOGIN_PRIMARY_COLOR} 0%, ${LOGIN_SECONDARY_COLOR} 100%)`;
   };
 
-  // Función para ajustar el brillo de un color hex
   const adjustBrightness = (hex, percent) => {
     const num = parseInt(hex.replace("#", ""), 16);
     const amt = Math.round(2.55 * percent);
@@ -69,14 +60,11 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      // Guardar tenant en localStorage ANTES de hacer login
       localStorage.setItem('tenant', tenant);
 
       const response = await fetch(`${API_URL}/auth/login?tenant=${tenant}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
@@ -87,8 +75,6 @@ const Login = ({ onLoginSuccess }) => {
       }
 
       setMessage('¡Inicio de sesión exitoso!');
-      console.log('Token:', data.token);
-
       onLoginSuccess(data.token);
       navigate('/admin/inventario');
 
@@ -105,10 +91,9 @@ const Login = ({ onLoginSuccess }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: createGradient(theme?.primaryColor),
+    background: createGradient(),
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     padding: '20px',
-    transition: 'background 0.3s ease'
   };
 
   const cardStyle = {
@@ -163,8 +148,8 @@ const Login = ({ onLoginSuccess }) => {
 
   const inputFocusStyle = {
     ...inputStyle,
-    borderColor: theme?.primaryColor || '#4299e1',
-    boxShadow: `0 0 0 3px ${theme?.primaryColor ? theme.primaryColor + '1a' : 'rgba(66, 153, 225, 0.1)'}`
+    borderColor: LOGIN_PRIMARY_COLOR,
+    boxShadow: `0 0 0 3px ${LOGIN_PRIMARY_COLOR}1a`
   };
 
   const selectStyle = {
@@ -179,14 +164,14 @@ const Login = ({ onLoginSuccess }) => {
 
   const selectFocusStyle = {
     ...selectStyle,
-    borderColor: theme?.primaryColor || '#4299e1',
-    boxShadow: `0 0 0 3px ${theme?.primaryColor ? theme.primaryColor + '1a' : 'rgba(66, 153, 225, 0.1)'}`
+    borderColor: LOGIN_PRIMARY_COLOR,
+    boxShadow: `0 0 0 3px ${LOGIN_PRIMARY_COLOR}1a`
   };
 
   const buttonStyle = {
     width: '100%',
     height: '48px',
-    backgroundColor: isLoading || !username || !password || !tenant ? '#a0aec0' : (theme?.primaryColor || '#4299e1'),
+    backgroundColor: isLoading || !username || !password || !tenant ? '#a0aec0' : LOGIN_PRIMARY_COLOR,
     color: '#ffffff',
     border: 'none',
     borderRadius: '12px',
@@ -199,14 +184,14 @@ const Login = ({ onLoginSuccess }) => {
     justifyContent: 'center',
     outline: 'none',
     transform: 'translateY(0)',
-    boxShadow: isLoading || !username || !password || !tenant ? 'none' : `0 4px 12px ${theme?.primaryColor ? theme.primaryColor + '66' : 'rgba(66, 153, 225, 0.4)'}`
+    boxShadow: isLoading || !username || !password || !tenant ? 'none' : `0 4px 12px ${LOGIN_PRIMARY_COLOR}66`
   };
 
   const buttonHoverStyle = {
     ...buttonStyle,
-    backgroundColor: theme?.primaryColor ? adjustBrightness(theme.primaryColor, -15) : '#3182ce',
+    backgroundColor: adjustBrightness(LOGIN_PRIMARY_COLOR, -15),
     transform: 'translateY(-1px)',
-    boxShadow: `0 6px 16px ${theme?.primaryColor ? theme.primaryColor + '66' : 'rgba(66, 153, 225, 0.4)'}`
+    boxShadow: `0 6px 16px ${LOGIN_PRIMARY_COLOR}66`
   };
 
   const messageStyle = {
@@ -242,15 +227,12 @@ const Login = ({ onLoginSuccess }) => {
       </style>
       
       <div style={cardStyle}>
-        {/* Header */}
         <div>
           <h2 style={titleStyle}>Iniciar Sesión</h2>
           <p style={subtitleStyle}>Accede a tu cuenta para continuar</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Tenant Selector */}
           <div>
             <label style={labelStyle}>Empresa / Negocio</label>
             <select
@@ -271,7 +253,6 @@ const Login = ({ onLoginSuccess }) => {
             </select>
           </div>
 
-          {/* Username */}
           <div>
             <label style={labelStyle}>Usuario</label>
             <input
@@ -287,7 +268,6 @@ const Login = ({ onLoginSuccess }) => {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label style={labelStyle}>Contraseña</label>
             <input
@@ -303,7 +283,6 @@ const Login = ({ onLoginSuccess }) => {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={!username || !password || !tenant || isLoading}
@@ -322,7 +301,6 @@ const Login = ({ onLoginSuccess }) => {
           </button>
         </form>
 
-        {/* Message */}
         {message && (
           <div style={messageStyle}>
             {message}

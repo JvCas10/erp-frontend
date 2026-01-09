@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -12,12 +12,17 @@ let ps;
 
 function Admin(props) {
   const location = useLocation();
-  const { theme, updateTheme } = useTheme();
+  const { theme, updateTheme, loadTheme } = useTheme();
   const backgroundColor = theme.backgroundColor || "black";
   const activeColor = theme.primaryColor || "info";
   const sidebarMini = theme.sidebarMini || false;
 
   const mainPanel = React.useRef();
+
+  // ⭐ Cargar tema del tenant al montar el componente
+  useEffect(() => {
+    loadTheme();
+  }, []);
 
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {

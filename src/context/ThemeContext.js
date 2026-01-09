@@ -1,68 +1,64 @@
-// context/ThemeContext.js
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { getConfig } from "../api/config";
-
-const defaultTheme = {
-  empresaNombre: "Mi Empresa",
-  primaryColor: "#3498db",
-  secondaryColor: "#2ecc71",
-  backgroundColor: "#f5f5f5",
-  textColor: "#333333",
-  logo: "",
-  sidebarMini: false,
-};
+// src/context/ThemeContext.jsx
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { getConfig } from '../api/config';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(defaultTheme);
+  const [theme, setTheme] = useState({
+    primaryColor: '#3498db',
+    secondaryColor: '#2ecc71',
+    backgroundColor: '#f5f5f5',
+    textColor: '#333333',
+    empresaNombre: 'Dashboard'
+  });
 
-  useEffect(() => {
-    const fetchThemeFromAPI = async () => {
-      try {
-        const config = await getConfig();
-        if (config) {
-          console.log("Configuración de tema cargada:", config);
-          setTheme({
-            empresaNombre: config.empresa_nombre || defaultTheme.empresaNombre,
-            primaryColor: config.primary_color || defaultTheme.primaryColor,
-            secondaryColor: config.secondary_color || defaultTheme.secondaryColor,
-            backgroundColor: config.background_color || defaultTheme.backgroundColor,
-            textColor: config.text_color || defaultTheme.textColor,
-            logo: config.logo || defaultTheme.logo,
-            sidebarMini: false,
-          });
-          // Aplicar directamente al body el color de fondo si es necesario
-          document.documentElement.style.setProperty(
-            "--sidebar-gradient",
-            `linear-gradient(135deg, ${config.primary_color}, ${config.secondary_color})`
-          );
-        }
-      } catch (error) {
-        console.error("Error al cargar configuración de tema:", error);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ⭐ Cargar tema del tenant actual
+  const loadTheme = async () => {
+    try {
+      const tenant = localStorage.getItem('tenant');
+      if (!tenant) {
+        setIsLoading(false);
+        return;
       }
-    };
 
-    fetchThemeFromAPI();
-  }, []);
-
-  const updateTheme = (newThemeValues) => {
-    setTheme((prev) => {
-      const updated = { ...prev, ...newThemeValues };
-      if (updated.backgroundColor) {
-        if (newThemeValues.primaryColor && newThemeValues.secondaryColor) {
-          document.documentElement.style.setProperty(
-            "--sidebar-gradient",
-            `linear-gradient(135deg, ${newThemeValues.primaryColor}, ${newThemeValues.secondaryColor})`
-          );
-        }
+      const data = await getConfig();
+      
+      if (data && data.config) {
+        setTheme({
+          primaryColor: data.config.primary_color || '#3498db',
+          secondaryColor: data.config.secondary_color || '#2ecc71',
+          backgroundColor: data.config.background_color || '#f5f5f5',
+          textColor: data.config.text_color || '#333333',
+          empresaNombre: data.config.empresa_nombre || 'Dashboard'
+        });
       }
-      return updated;
-    });
+    } catch (error) {
+      console.error('Error cargando tema:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  // Cargar tema al montar y cuando cambie el tenant
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
+  // Recargar tema cuando cambie el tenant en localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadTheme();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ theme, updateTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, loadTheme, isLoading }}>
       {children}
     </ThemeContext.Provider>
   );
