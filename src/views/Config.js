@@ -19,7 +19,7 @@ import { getConfig, updateConfig } from "../api/config";
 import { useTheme } from "../context/ThemeContext";
 
 const Config = () => {
-  const { theme, updateTheme } = useTheme();
+  const { theme, setTheme } = useTheme(); // ← CAMBIO AQUÍ
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -47,15 +47,15 @@ const Config = () => {
   const fetchConfig = async () => {
     try {
       const data = await getConfig();
-      if (data) {
-        setFormData(data);
-        updateTheme({
-          empresaNombre: data.empresa_nombre,
-          primaryColor: data.primary_color,
-          secondaryColor: data.secondary_color,
-          backgroundColor: data.background_color,
-          textColor: data.text_color,
-          logo: data.logo,
+      if (data && data.config) {
+        setFormData(data.config);
+        setTheme({
+          empresaNombre: data.config.empresa_nombre,
+          primaryColor: data.config.primary_color,
+          secondaryColor: data.config.secondary_color,
+          backgroundColor: data.config.background_color,
+          textColor: data.config.text_color,
+          logo: data.config.logo,
         });
       }
     } catch (err) {
@@ -91,8 +91,8 @@ const Config = () => {
 
       const result = await updateConfig(payload);
 
-      if (result.success) {
-        updateTheme({
+      if (result.success || result.status === 'success') {
+        setTheme({
           empresaNombre: payload.empresa_nombre,
           primaryColor: payload.primary_color,
           secondaryColor: payload.secondary_color,
@@ -101,16 +101,17 @@ const Config = () => {
           logo: payload.logo,
         });
         setIsModalOpen(false);
+        alert("Configuración guardada exitosamente");
       } else {
         alert("Error al guardar configuración");
       }
     } catch (err) {
       console.error("Error saving config:", err);
+      alert("Error al guardar configuración");
     }
   };
 
   const handleChangePassword = async () => {
-    // Validaciones básicas
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       setPasswordMessage("Todos los campos son obligatorios");
       return;
@@ -167,6 +168,7 @@ const Config = () => {
     
     if (confirmLogout) {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('tenant');
       navigate('/auth/login');
     }
   };
