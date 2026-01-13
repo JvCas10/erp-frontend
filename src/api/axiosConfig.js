@@ -1,43 +1,57 @@
 // src/api/axiosConfig.js
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
+// Crear instancia de axios con baseURL
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Interceptor para agregar tenant y token
+// Configurar interceptor para incluir automáticamente el token Y el tenant
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Token
+    // ⭐ AGREGAR TOKEN (authToken, no token)
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ Token añadido:', token.substring(0, 20) + '...');
+    } else {
+      console.log('⚠️ No hay token disponible');
     }
 
-    // Tenant
-    const tenant = localStorage.getItem('tenant') || 'prueba';
-    if (!config.params) {
-      config.params = {};
+    // ⭐ AGREGAR TENANT COMO QUERY PARAM
+    const tenant = localStorage.getItem('tenant');
+    if (tenant) {
+      config.params = config.params || {};
+      config.params.tenant = tenant;
+      console.log('✅ Tenant añadido:', tenant);
+    } else {
+      console.log('⚠️ No hay tenant disponible');
     }
-    config.params.tenant = tenant;
-
-    console.log('🔍 Request:', config.url, 'Tenant:', tenant);
 
     return config;
   },
   (error) => {
+    console.error('❌ Error en interceptor de request:', error);
     return Promise.reject(error);
   }
 );
 
-// Interceptor para manejar errores 401
+// Interceptor para manejar respuestas y errores de autenticación
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
+      console.log('❌ Error 401 - Token inválido o expirado');
       localStorage.removeItem('authToken');
+      localStorage.removeItem('tenant');
       window.location.href = '/auth/login';
     }
     return Promise.reject(error);
