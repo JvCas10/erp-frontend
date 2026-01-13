@@ -1,37 +1,18 @@
-/*import React from "react";
+import React from "react";
 import classnames from "classnames";
 import { useLocation } from "react-router-dom";
 import {
   Button,
-  Collapse,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  Form,
-  Input,
-  InputGroupText,
-  InputGroup,
   NavbarBrand,
   Navbar,
-  NavItem,
-  NavLink,
-  Nav,
   Container,
 } from "reactstrap";
 import { useTheme } from "../../context/ThemeContext";
 
 function AdminNavbar(props) {
-  const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [color, setColor] = React.useState("navbar-transparent");
   const location = useLocation();
   const { theme } = useTheme();
-
-  React.useEffect(() => {
-    window.addEventListener("resize", updateColor);
-    return () => window.removeEventListener("resize", updateColor);
-  }, [collapseOpen]);
 
   React.useEffect(() => {
     if (
@@ -42,28 +23,15 @@ function AdminNavbar(props) {
     }
   }, [location]);
 
-  const updateColor = () => {
-    if (window.innerWidth < 993 && collapseOpen) {
-      setColor("bg-white");
-    } else {
-      setColor("navbar-transparent");
-    }
-  };
-
   const toggleSidebar = () => {
     document.documentElement.classList.toggle("nav-open");
     setSidebarOpen(!sidebarOpen);
   };
 
-  const toggleCollapse = () => {
-    setColor(!collapseOpen ? "bg-white" : "navbar-transparent");
-    setCollapseOpen(!collapseOpen);
-  };
-
   return (
     <>
       <Navbar
-        className={classnames("navbar-absolute fixed-top", color)}
+        className="navbar-absolute fixed-top"
         expand="lg"
         style={{ backgroundColor: theme.primaryColor }}
       >
@@ -99,107 +67,13 @@ function AdminNavbar(props) {
               <span className="d-none d-md-block">
                 {theme.empresaNombre || "Dashboard"}
               </span>
-              <span className="d-block d-md-none">PD PRO React</span>
+              <span className="d-block d-md-none">ERP</span>
             </NavbarBrand>
           </div>
-          <button
-            aria-controls="navigation-index"
-            aria-expanded={collapseOpen}
-            aria-label="Toggle navigation"
-            className="navbar-toggler"
-            data-toggle="collapse"
-            type="button"
-            onClick={toggleCollapse}
-          >
-            <span className="navbar-toggler-bar navbar-kebab" />
-            <span className="navbar-toggler-bar navbar-kebab" />
-            <span className="navbar-toggler-bar navbar-kebab" />
-          </button>
-          <Collapse
-            className="justify-content-end"
-            navbar
-            isOpen={collapseOpen}
-          >
-            <Form>
-              <InputGroup className="no-border">
-                <Input defaultValue="" placeholder="Search..." type="text" />
-                <InputGroupText addonType="append">
-                  <InputGroupText>
-                    <i className="nc-icon nc-zoom-split" />
-                  </InputGroupText>
-                </InputGroupText>
-              </InputGroup>
-            </Form>
-            <Nav navbar>
-              <NavItem>
-                <NavLink
-                  className="btn-magnify"
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <i className="nc-icon nc-layout-11" />
-                  <p>
-                    <span className="d-lg-none d-md-block">Stats</span>
-                  </p>
-                </NavLink>
-              </NavItem>
-              <UncontrolledDropdown className="btn-rotate" nav>
-                <DropdownToggle
-                  aria-haspopup={true}
-                  caret
-                  color="default"
-                  data-toggle="dropdown"
-                  id="navbarDropdownMenuLink"
-                  nav
-                >
-                  <i className="nc-icon nc-bell-55" />
-                  <p>
-                    <span className="d-lg-none d-md-block">Notificaciones</span>
-                  </p>
-                </DropdownToggle>
-                <DropdownMenu
-                  persist
-                  aria-labelledby="navbarDropdownMenuLink"
-                  right
-                >
-                  <DropdownItem
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Action
-                  </DropdownItem>
-                  <DropdownItem
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Another action
-                  </DropdownItem>
-                  <DropdownItem
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Something else here
-                  </DropdownItem>
-                </DropdownMenu>
-              </UncontrolledDropdown>
-              <NavItem>
-                <NavLink
-                  className="btn-rotate"
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <i className="nc-icon nc-settings-gear-65" />
-                  <p>
-                    <span className="d-lg-none d-md-block">Account</span>
-                  </p>
-                </NavLink>
-              </NavItem>
-            </Nav>
-          </Collapse>
         </Container>
       </Navbar>
     </>
   );
 }
 
-export default AdminNavbar;*/
+export default AdminNavbar;
