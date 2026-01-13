@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getConfig, updateConfig } from "../api/config";
 import { useTheme } from "../context/ThemeContext";
+import axiosInstance from "../api/axiosConfig";
 
 const Config = () => {
   const { theme, setTheme } = useTheme(); // ← CAMBIO AQUÍ
@@ -47,15 +48,26 @@ const Config = () => {
   const fetchConfig = async () => {
     try {
       const data = await getConfig();
-      if (data && data.config) {
-        setFormData(data.config);
+      console.log('📦 Config recibida:', data);
+
+      // ⭐ Backend devuelve datos DIRECTAMENTE (sin .config)
+      if (data) {
+        setFormData({
+          empresa_nombre: data.empresa_nombre || "",
+          primary_color: data.primary_color || "#3498db",
+          secondary_color: data.secondary_color || "#2ecc71",
+          background_color: data.background_color || "#f5f5f5",
+          text_color: data.text_color || "#333333",
+          logo: data.logo || "",
+        });
+
         setTheme({
-          empresaNombre: data.config.empresa_nombre,
-          primaryColor: data.config.primary_color,
-          secondaryColor: data.config.secondary_color,
-          backgroundColor: data.config.background_color,
-          textColor: data.config.text_color,
-          logo: data.config.logo,
+          empresaNombre: data.empresa_nombre || "Mi Empresa",
+          primaryColor: data.primary_color || "#3498db",
+          secondaryColor: data.secondary_color || "#2ecc71",
+          backgroundColor: data.background_color || "#f5f5f5",
+          textColor: data.text_color || "#333333",
+          logo: data.logo || "",
         });
       }
     } catch (err) {
@@ -112,6 +124,7 @@ const Config = () => {
   };
 
   const handleChangePassword = async () => {
+    // Validaciones básicas
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       setPasswordMessage("Todos los campos son obligatorios");
       return;
@@ -131,21 +144,13 @@ const Config = () => {
     setPasswordMessage("");
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/change-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword
-        })
+      // ⭐ USAR axiosInstance en lugar de fetch
+      const response = await axiosInstance.post('/auth/change-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.status === 'success') {
+      if (response.data.status === 'success') {
         setPasswordMessage("Contraseña cambiada exitosamente");
         setTimeout(() => {
           setIsPasswordModalOpen(false);
@@ -153,11 +158,11 @@ const Config = () => {
           setPasswordMessage("");
         }, 2000);
       } else {
-        setPasswordMessage(data.message || "Error al cambiar la contraseña");
+        setPasswordMessage(response.data.message || "Error al cambiar la contraseña");
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      setPasswordMessage("Error de conexión con el servidor");
+      setPasswordMessage(error.response?.data?.message || "Error de conexión con el servidor");
     } finally {
       setIsChangingPassword(false);
     }
@@ -165,7 +170,7 @@ const Config = () => {
 
   const handleLogout = () => {
     const confirmLogout = window.confirm("¿Estás seguro que deseas cerrar sesión?");
-    
+
     if (confirmLogout) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('tenant');
@@ -184,7 +189,7 @@ const Config = () => {
       <Row>
         <Col md="12">
           <h3 className="mb-4">Configuración de Apariencia</h3>
-          
+
           <div className="d-flex gap-3 mb-3">
             <Button
               color="primary"
@@ -192,7 +197,7 @@ const Config = () => {
             >
               <i className="nc-icon nc-palette mr-2" /> Personalizar Tema
             </Button>
-            
+
             <Button
               color="warning"
               onClick={openPasswordModal}
@@ -200,7 +205,7 @@ const Config = () => {
               <i className="nc-icon nc-key-25 mr-2" />
               Cambiar Contraseña
             </Button>
-            
+
             <Button
               color="danger"
               onClick={handleLogout}
@@ -326,7 +331,7 @@ const Config = () => {
                 disabled={isChangingPassword}
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>Nueva Contraseña</Label>
               <Input
@@ -338,7 +343,7 @@ const Config = () => {
                 disabled={isChangingPassword}
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>Confirmar Nueva Contraseña</Label>
               <Input
@@ -359,15 +364,15 @@ const Config = () => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button 
-            color="secondary" 
+          <Button
+            color="secondary"
             onClick={() => setIsPasswordModalOpen(false)}
             disabled={isChangingPassword}
           >
             Cancelar
           </Button>
-          <Button 
-            color="primary" 
+          <Button
+            color="primary"
             onClick={handleChangePassword}
             disabled={isChangingPassword}
           >
