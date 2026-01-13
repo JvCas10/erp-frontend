@@ -6,7 +6,7 @@
   --text-color: #333333;
 }
 
-/* ========== SIDEBAR - FORZAR USO DE VARIABLES ========== */
+/* Sidebar - FORZAR sin importar data-color */
 .sidebar,
 .sidebar[data-color="blue"],
 .sidebar[data-color="green"],
@@ -15,85 +15,27 @@
 .sidebar[data-color="yellow"],
 .sidebar[data-color] {
   background: var(--primary-color) !important;
-  background-color: var(--primary-color) !important;
-  background-image: none !important;
-}
-
-.sidebar::before,
-.sidebar::after {
-  background: var(--primary-color) !important;
-}
-
-.sidebar .sidebar-wrapper {
-  background: transparent !important;
 }
 
 .sidebar .nav li.active > a,
 .sidebar .nav li.active > a:hover,
 .sidebar .nav li.active > a:focus {
   background-color: var(--secondary-color) !important;
-  color: #ffffff !important;
-  opacity: 1 !important;
 }
 
-.sidebar .nav li > a:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.sidebar .logo {
-  background: var(--primary-color) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.sidebar .logo a {
-  color: #ffffff !important;
-}
-
-.sidebar .nav > li > a,
-.sidebar .nav > li > a i {
-  color: #ffffff !important;
-}
-
-/* ========== NAVBAR ========== */
-.navbar,
-.navbar.navbar-absolute {
-  background-color: var(--primary-color) !important;
-  background: var(--primary-color) !important;
-}
-
-.navbar .navbar-brand {
-  color: #ffffff !important;
-}
-
-.navbar .navbar-toggler-bar {
-  background: #ffffff !important;
-}
-
-/* ========== BOTONES ========== */
+/* Botones */
 .btn-primary {
   background-color: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
 }
 
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary:not(:disabled):not(.disabled):active {
+.btn-primary:hover {
   background-color: var(--secondary-color) !important;
   border-color: var(--secondary-color) !important;
 }
 
-.btn-success {
-  background-color: var(--secondary-color) !important;
-  border-color: var(--secondary-color) !important;
-}
-
-/* ========== MAIN PANEL ========== */
+/* Main panel */
 .main-panel {
-  background-color: var(--background-color) !important;
-}
-
-.main-panel > .content {
   background-color: var(--background-color) !important;
 }
 
@@ -101,97 +43,12 @@
   color: var(--text-color) !important;
 }
 
-/* ========== CARDS ========== */
+/* Navbar */
+.navbar {
+  background-color: var(--primary-color) !important;
+}
+
+/* Cards */
 .card {
   background-color: #ffffff !important;
-  color: var(--text-color) !important;
-}
-
-.card .card-header {
-  background-color: var(--primary-color) !important;
-  color: #ffffff !important;
-}
-
-.card-header h4,
-.card-header h5 {
-  color: #ffffff !important;
-}
-
-/* ========== TABLES ========== */
-.table thead th {
-  background-color: var(--primary-color) !important;
-  color: #ffffff !important;
-  border-color: var(--primary-color) !important;
-}
-
-/* ========== LINKS ========== */
-a {
-  color: var(--primary-color) !important;
-}
-
-a:hover {
-  color: var(--secondary-color) !important;
-}
-
-/* ========== ACTIVE ELEMENTS ========== */
-.nav-pills .nav-link.active,
-.nav-pills .show > .nav-link {
-  background-color: var(--primary-color) !important;
-}
-
-/* ========== BADGES ========== */
-.badge-primary {
-  background-color: var(--primary-color) !important;
-}
-
-.badge-success {
-  background-color: var(--secondary-color) !important;
-}
-
-/* ========== FORMS ========== */
-.form-control:focus {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
-}
-
-/* ========== PAGINATION ========== */
-.pagination .page-item.active .page-link {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-}
-
-.pagination .page-link {
-  color: var(--primary-color) !important;
-}
-
-.pagination .page-link:hover {
-  color: var(--secondary-color) !important;
-  background-color: rgba(52, 152, 219, 0.1) !important;
-}
-
-/* ========== ALERTS ========== */
-.alert-primary {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: #ffffff !important;
-}
-
-/* ========== PROGRESS BARS ========== */
-.progress-bar {
-  background-color: var(--primary-color) !important;
-}
-
-/* ========== MODALS ========== */
-.modal-header {
-  background-color: var(--primary-color) !important;
-  color: #ffffff !important;
-}
-
-.modal-header .close {
-  color: #ffffff !important;
-  opacity: 0.8 !important;
-}
-
-.modal-header .close:hover {
-  opacity: 1 !important;
 }
