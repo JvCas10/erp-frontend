@@ -1,6 +1,6 @@
-// src/components/auth/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -15,6 +15,7 @@ const Login = ({ onLoginSuccess }) => {
   const [focusedInput, setFocusedInput] = useState(null);
   const [isHovering, setIsHovering] = useState(false);
   const navigate = useNavigate();
+  const { loadTheme } = useTheme(); // ⭐ Importar loadTheme
 
   // ⭐ COLORES FIJOS PARA LOGIN (no dependen del tenant)
   const LOGIN_PRIMARY_COLOR = '#667eea';
@@ -60,6 +61,7 @@ const Login = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
+      // ⭐ Guardar tenant ANTES de hacer login
       localStorage.setItem('tenant', tenant);
 
       const response = await fetch(`${API_URL}/auth/login?tenant=${tenant}`, {
@@ -76,6 +78,11 @@ const Login = ({ onLoginSuccess }) => {
 
       setMessage('¡Inicio de sesión exitoso!');
       onLoginSuccess(data.token);
+
+      // ⭐ CARGAR TEMA DEL TENANT ANTES DE NAVEGAR
+      await loadTheme();
+
+      // Navegar después de cargar el tema
       navigate('/admin/inventario');
 
     } catch (error) {
