@@ -6,8 +6,16 @@
   --text-color: #333333;
 }
 
-/* Sidebar */
+/* ========== SIDEBAR ========== */
 .sidebar {
+  background: var(--primary-color) !important;
+}
+
+.sidebar[data-color="blue"],
+.sidebar[data-color="green"],
+.sidebar[data-color="orange"],
+.sidebar[data-color="red"],
+.sidebar[data-color="yellow"] {
   background: var(--primary-color) !important;
 }
 
@@ -15,20 +23,50 @@
 .sidebar .nav li.active > a:hover,
 .sidebar .nav li.active > a:focus {
   background-color: var(--secondary-color) !important;
+  color: #ffffff !important;
 }
 
-/* Botones */
+.sidebar .nav li > a:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar .logo {
+  background: var(--primary-color) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.sidebar .logo a {
+  color: #ffffff !important;
+}
+
+/* ========== NAVBAR ========== */
+.navbar {
+  background-color: var(--primary-color) !important;
+}
+
+.navbar .navbar-brand {
+  color: #ffffff !important;
+}
+
+/* ========== BOTONES ========== */
 .btn-primary {
   background-color: var(--primary-color) !important;
   border-color: var(--primary-color) !important;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
   background-color: var(--secondary-color) !important;
   border-color: var(--secondary-color) !important;
 }
 
-/* Main panel */
+.btn-success {
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+/* ========== MAIN PANEL ========== */
 .main-panel {
   background-color: var(--background-color) !important;
 }
@@ -37,12 +75,42 @@
   color: var(--text-color) !important;
 }
 
-/* Navbar */
-.navbar {
+/* ========== CARDS ========== */
+.card {
+  background-color: #ffffff !important;
+  color: var(--text-color) !important;
+}
+
+.card .card-header {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* ========== TABLES ========== */
+.table thead th {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* ========== LINKS ========== */
+a {
+  color: var(--primary-color) !important;
+}
+
+a:hover {
+  color: var(--secondary-color) !important;
+}
+
+/* ========== ACTIVE ELEMENTS ========== */
+.nav-pills .nav-link.active {
   background-color: var(--primary-color) !important;
 }
 
-/* Cards */
-.card {
-  background-color: #ffffff !important;
+/* ========== BADGES ========== */
+.badge-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.badge-success {
+  background-color: var(--secondary-color) !important;
 }
