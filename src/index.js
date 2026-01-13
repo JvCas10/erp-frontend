@@ -11,9 +11,9 @@ import "assets/scss/paper-dashboard.scss?v=1.3.1";
 import "assets/demo/demo.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import "react-datepicker/dist/react-datepicker.css";
+import "assets/css/custom.css"; // ← AGREGAR ESTA LÍNEA
 
 import { ThemeProvider } from "./context/ThemeContext";
-
 
 console.warn = () => {};
 
@@ -25,7 +25,6 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      // En una aplicación real, aquí validarías el token con la API
       setIsAuthenticated(true);
     }
   }, []);
