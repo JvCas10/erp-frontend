@@ -21,7 +21,6 @@ import ReactTable from "components/ReactTable/ReactTable.js";
 import { useTheme } from "../context/ThemeContext";
 import SweetAlert from "react-bootstrap-sweetalert";
 import axiosInstance from "../api/axiosConfig";
-import axios from "axios";
 
 import {
   crearProductoCompuesto,
@@ -53,6 +52,15 @@ function ProductosCompuestos() {
   });
 
   const FILES_API = import.meta.env?.VITE_SERVER_FILES || process.env.REACT_APP_SERVER_FILES;
+
+  // Helper para obtener la URL correcta de la imagen
+  const getImageUrl = (foto) => {
+    if (!foto) return null;
+    // Si ya es una URL completa (Cloudinary), usarla directamente
+    if (foto.startsWith('http')) return foto;
+    // Si es un archivo local, usar FILES_API
+    return `${FILES_API}/${foto}`;
+  };
 
   // Cargar productos compuestos
   const fetchProductosCompuestos = async () => {
@@ -335,7 +343,7 @@ function ProductosCompuestos() {
                         >
                           {value ? (
                             <img
-                              src={`${FILES_API}/${value}`}
+                              src={getImageUrl(value)}
                               alt="Producto"
                               style={{
                                 width: "70px",
@@ -461,7 +469,7 @@ function ProductosCompuestos() {
                     src={
                       nuevoCompuesto.foto
                         ? URL.createObjectURL(nuevoCompuesto.foto)
-                        : `${FILES_API}/${nuevoCompuesto.foto_original}`
+                        : getImageUrl(nuevoCompuesto.foto_original)
                     }
                     alt="Preview"
                     style={{

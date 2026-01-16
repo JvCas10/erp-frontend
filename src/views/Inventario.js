@@ -54,6 +54,15 @@ function Inventario() {
 
   const FILES_API = import.meta.env?.VITE_SERVER_FILES || process.env.REACT_APP_SERVER_FILES;
 
+  // Helper para obtener la URL correcta de la imagen
+  const getImageUrl = (foto) => {
+    if (!foto) return null;
+    // Si ya es una URL completa (Cloudinary), usarla directamente
+    if (foto.startsWith('http')) return foto;
+    // Si es un archivo local, usar FILES_API
+    return `${FILES_API}/${foto}`;
+  };
+
   // Cargar inventario
   const fetchInventario = async () => {
     try {
@@ -327,7 +336,7 @@ function Inventario() {
                       >
                         {value ? (
                           <img
-                            src={`${FILES_API}/${value}`}
+                            src={getImageUrl(value)}
                             alt="Producto"
                             style={{
                               width: "70px",
@@ -538,9 +547,20 @@ function Inventario() {
                       }))
                     }
                   />
-                  {isEditing && !nuevoProducto.foto && (
-                    <div style={{ fontSize: "0.8em", marginTop: "4px" }}>
-                      Foto actual: {nuevoProducto.foto_original || "ninguna"}
+                  {isEditing && !nuevoProducto.foto && nuevoProducto.foto_original && (
+                    <div style={{ marginTop: "8px" }}>
+                      <small>Foto actual:</small>
+                      <img 
+                        src={getImageUrl(nuevoProducto.foto_original)} 
+                        alt="Foto actual"
+                        style={{ 
+                          width: "60px", 
+                          height: "60px", 
+                          objectFit: "cover",
+                          borderRadius: "5px",
+                          marginLeft: "10px"
+                        }}
+                      />
                     </div>
                   )}
                 </FormGroup>
