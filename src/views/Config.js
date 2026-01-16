@@ -20,11 +20,12 @@ import { useTheme } from "../context/ThemeContext";
 import axiosInstance from "../api/axiosConfig";
 
 const Config = () => {
-  const { theme, setTheme } = useTheme(); // ← CAMBIO AQUÍ
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -41,6 +42,13 @@ const Config = () => {
     logo: "",
   });
 
+  // Helper para obtener URL de imagen (Cloudinary o local)
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:')) return url;
+    return url;
+  };
+
   useEffect(() => {
     fetchConfig();
   }, []);
@@ -50,7 +58,6 @@ const Config = () => {
       const data = await getConfig();
       console.log('📦 Config recibida:', data);
 
-      // ⭐ Backend devuelve datos DIRECTAMENTE (sin .config)
       if (data) {
         setFormData({
           empresa_nombre: data.empresa_nombre || "",
@@ -87,31 +94,52 @@ const Config = () => {
 
   const handleLogoChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setLogoFile(file);
+      
+      // Crear preview local
       const reader = new FileReader();
       reader.onload = (event) => {
-        setFormData((prev) => ({ ...prev, logo: event.target.result }));
+        setLogoPreview(event.target.result);
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = async () => {
     try {
-      const payload = { ...formData };
-      if (logoFile) payload.logo = formData.logo;
+      const payload = {
+        empresa_nombre: formData.empresa_nombre,
+        primary_color: formData.primary_color,
+        secondary_color: formData.secondary_color,
+        background_color: formData.background_color,
+        text_color: formData.text_color,
+        logo_actual: formData.logo, // Logo actual en caso de no cambiar
+      };
+      
+      // Si hay un archivo nuevo, agregarlo
+      if (logoFile) {
+        payload.logoFile = logoFile;
+      }
 
       const result = await updateConfig(payload);
 
       if (result.success || result.status === 'success') {
+        // Usar el logo devuelto por el servidor (URL de Cloudinary)
+        const newLogo = result.config?.logo || formData.logo;
+        
         setTheme({
           empresaNombre: payload.empresa_nombre,
           primaryColor: payload.primary_color,
           secondaryColor: payload.secondary_color,
           backgroundColor: payload.background_color,
           textColor: payload.text_color,
-          logo: payload.logo,
+          logo: newLogo,
         });
+        
+        setFormData(prev => ({ ...prev, logo: newLogo }));
+        setLogoFile(null);
+        setLogoPreview(null);
         setIsModalOpen(false);
         alert("Configuración guardada exitosamente");
       } else {
@@ -124,7 +152,6 @@ const Config = () => {
   };
 
   const handleChangePassword = async () => {
-    // Validaciones básicas
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       setPasswordMessage("Todos los campos son obligatorios");
       return;
@@ -144,7 +171,6 @@ const Config = () => {
     setPasswordMessage("");
 
     try {
-      // ⭐ USAR axiosInstance en lugar de fetch
       const response = await axiosInstance.post('/auth/change-password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
@@ -183,6 +209,9 @@ const Config = () => {
     setPasswordMessage("");
     setIsPasswordModalOpen(true);
   };
+
+  // Determinar qué logo mostrar en el preview
+  const displayLogo = logoPreview || getImageUrl(formData.logo);
 
   return (
     <div className="content p-4">
@@ -238,13 +267,18 @@ const Config = () => {
               <Col md="6">
                 <FormGroup>
                   <Label>Logo</Label>
-                  <Input type="file" onChange={handleLogoChange} />
-                  {formData.logo && (
+                  <Input type="file" accept="image/*" onChange={handleLogoChange} />
+                  {displayLogo && (
                     <div className="mt-2">
                       <img
-                        src={formData.logo}
+                        src={displayLogo}
                         alt="Logo Preview"
-                        height="60"
+                        style={{
+                          height: "60px",
+                          maxWidth: "200px",
+                          objectFit: "contain",
+                          borderRadius: "4px"
+                        }}
                       />
                     </div>
                   )}
