@@ -12,7 +12,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
     const [productos, setProductos] = useState(products);
     const [cartItems, setCartItems] = useState([]);
     const [activeTab, setActiveTab] = useState('productos');
-    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const [filters, setFilters] = useState({
         search: "",
@@ -24,16 +23,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         selectedProducts: []
     });
 
-    // Detectar cambios de tamaño de ventana
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const isMobile = windowWidth <= 768;
-
-    // Filtrar los datos dinamicamente
     const handleFilter = (updatedFilters) => {
         const newFilters = { ...filters, ...updatedFilters };
         setFilters(newFilters);
@@ -178,7 +167,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background-color: rgba(0, 0, 0, 0.7);
+                    background-color: rgba(0, 0, 0, 0.8);
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -187,7 +176,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                 }
                 
                 .compra-modal {
-                    background-color: #f5f5f5;
+                    background-color: #f8f9fa;
                     width: 100%;
                     height: 100%;
                     display: flex;
@@ -196,23 +185,39 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                     overflow: hidden;
                 }
                 
-                @media (min-width: 1025px) {
+                @media (min-width: 768px) {
                     .compra-modal-overlay {
                         padding: 20px;
                     }
                     .compra-modal {
-                        border-radius: 12px;
-                        max-width: 1200px;
-                        max-height: 95vh;
-                        height: auto;
+                        border-radius: 16px;
+                        max-width: 900px;
+                        max-height: 90vh;
+                        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
                     }
                 }
                 
+                .compra-header {
+                    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                    padding: 15px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                }
+                
+                .compra-header-title {
+                    color: #fff;
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
                 .compra-close-btn {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: #ff4757;
+                    background: rgba(255,255,255,0.2);
                     border: none;
                     border-radius: 50%;
                     width: 40px;
@@ -221,99 +226,125 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                    z-index: 100;
                     color: #fff;
-                    font-size: 20px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    font-size: 18px;
+                    transition: all 0.2s;
+                }
+                
+                .compra-close-btn:hover {
+                    background: rgba(255,255,255,0.3);
+                    transform: scale(1.1);
                 }
                 
                 .compra-tabs {
                     display: flex;
                     background: #fff;
-                    border-bottom: 2px solid #e0e0e0;
+                    border-bottom: 1px solid #e0e0e0;
                     padding: 0;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
                     flex-shrink: 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                 }
                 
                 .compra-tab {
                     flex: 1;
-                    min-width: 100px;
-                    padding: 15px 10px;
+                    padding: 12px 8px;
                     border: none;
                     background: transparent;
                     cursor: pointer;
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: 600;
-                    color: #666;
+                    color: #888;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 5px;
+                    gap: 4px;
                     transition: all 0.2s;
                     position: relative;
-                    white-space: nowrap;
+                    border-bottom: 3px solid transparent;
+                }
+                
+                .compra-tab:hover {
+                    background: #f5f5f5;
                 }
                 
                 .compra-tab.active {
-                    color: #17a2b8;
-                    background: #e3f7fa;
-                }
-                
-                .compra-tab.active::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    height: 3px;
-                    background: #17a2b8;
+                    color: #11998e;
+                    background: #e6f9f5;
+                    border-bottom-color: #11998e;
                 }
                 
                 .compra-tab-icon {
-                    font-size: 20px;
+                    font-size: 22px;
+                }
+                
+                .compra-tab-label {
+                    font-size: 11px;
+                }
+                
+                @media (min-width: 500px) {
+                    .compra-tab {
+                        flex-direction: row;
+                        gap: 8px;
+                        font-size: 14px;
+                    }
+                    .compra-tab-icon {
+                        font-size: 18px;
+                    }
+                    .compra-tab-label {
+                        font-size: 14px;
+                    }
                 }
                 
                 .compra-tab-badge {
                     position: absolute;
-                    top: 5px;
-                    right: 20px;
-                    background: #17a2b8;
+                    top: 6px;
+                    right: 50%;
+                    transform: translateX(25px);
+                    background: #11998e;
                     color: #fff;
                     font-size: 10px;
                     padding: 2px 6px;
                     border-radius: 10px;
                     min-width: 18px;
                     text-align: center;
+                    font-weight: 700;
                 }
                 
-                .compra-tab.cart-tab {
-                    background: #fff3e0;
+                @media (min-width: 500px) {
+                    .compra-tab-badge {
+                        position: static;
+                        transform: none;
+                        margin-left: 5px;
+                    }
                 }
                 
                 .compra-tab.cart-tab.active {
-                    background: #ffe0b2;
+                    background: #fff3e0;
                     color: #e65100;
+                    border-bottom-color: #e65100;
                 }
                 
-                .compra-tab.cart-tab.active::after {
+                .compra-tab.cart-tab .compra-tab-badge {
                     background: #e65100;
                 }
                 
                 .compra-content {
                     flex: 1;
                     overflow: hidden;
-                    display: flex;
-                    flex-direction: column;
+                    position: relative;
                 }
                 
                 .compra-panel {
-                    display: none;
-                    flex: 1;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
                     overflow-y: auto;
-                    padding: 15px;
+                    padding: 20px;
                     -webkit-overflow-scrolling: touch;
+                    display: none;
+                    background: #f8f9fa;
                 }
                 
                 .compra-panel.active {
@@ -321,105 +352,102 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                 }
                 
                 .compra-section-title {
-                    font-size: 18px;
+                    font-size: 20px;
                     font-weight: 700;
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                     color: #333;
-                    padding-bottom: 10px;
-                    border-bottom: 2px solid #17a2b8;
                     display: flex;
                     align-items: center;
+                    gap: 10px;
+                }
+                
+                .compra-section-title i {
+                    color: #11998e;
                 }
                 
                 .compra-products-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                    gap: 12px;
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                    gap: 15px;
                 }
                 
-                @media (max-width: 400px) {
+                @media (min-width: 768px) {
                     .compra-products-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                        gap: 8px;
+                        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                        gap: 20px;
                     }
                 }
                 
-                /* Desktop Layout */
-                @media (min-width: 769px) {
-                    .compra-tabs {
-                        display: none;
-                    }
-                    
-                    .compra-content {
-                        flex-direction: row;
-                        padding: 15px;
-                        gap: 15px;
-                    }
-                    
-                    .compra-panel {
-                        display: block !important;
-                        border-radius: 8px;
-                        background: #fff;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    }
-                    
-                    .compra-panel.filters-panel {
-                        width: 250px;
-                        flex-shrink: 0;
-                    }
-                    
-                    .compra-panel.products-panel {
-                        flex: 1;
-                    }
-                    
-                    .compra-panel.cart-panel {
-                        width: 350px;
-                        flex-shrink: 0;
-                        border: 2px solid #e65100;
-                    }
+                .compra-empty {
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #999;
+                }
+                
+                .compra-empty i {
+                    font-size: 48px;
+                    margin-bottom: 15px;
+                    opacity: 0.5;
+                }
+                
+                .compra-empty p {
+                    font-size: 16px;
+                    margin: 0;
                 }
             `}</style>
             
             <div className="compra-modal-overlay">
                 <div className="compra-modal">
-                    <button className="compra-close-btn" onClick={onClose}>
-                        <i className="fa fa-times" />
-                    </button>
+                    {/* Header */}
+                    <div className="compra-header">
+                        <h2 className="compra-header-title">
+                            <i className="fa fa-truck" />
+                            Nueva Compra
+                        </h2>
+                        <button className="compra-close-btn" onClick={onClose}>
+                            <i className="fa fa-times" />
+                        </button>
+                    </div>
 
-                    {/* Tabs para móvil */}
+                    {/* Tabs */}
                     <div className="compra-tabs">
                         <button 
                             className={`compra-tab ${activeTab === 'filtros' ? 'active' : ''}`}
                             onClick={() => setActiveTab('filtros')}
                         >
                             <i className="fa fa-filter compra-tab-icon" />
-                            <span>Filtros</span>
+                            <span className="compra-tab-label">Filtros</span>
                         </button>
                         <button 
                             className={`compra-tab ${activeTab === 'productos' ? 'active' : ''}`}
                             onClick={() => setActiveTab('productos')}
                         >
                             <i className="fa fa-box compra-tab-icon" />
-                            <span>Productos</span>
-                            <span className="compra-tab-badge">{productos.length}</span>
+                            <span className="compra-tab-label">Productos</span>
+                            {productos.length > 0 && (
+                                <span className="compra-tab-badge">{productos.length}</span>
+                            )}
                         </button>
                         <button 
                             className={`compra-tab cart-tab ${activeTab === 'carrito' ? 'active' : ''}`}
                             onClick={() => setActiveTab('carrito')}
                         >
                             <i className="fa fa-shopping-cart compra-tab-icon" />
-                            <span>Carrito</span>
+                            <span className="compra-tab-label">Carrito</span>
                             {cartItems.length > 0 && (
-                                <span className="compra-tab-badge" style={{background: '#e65100'}}>
-                                    {cartItems.length}
-                                </span>
+                                <span className="compra-tab-badge">{cartItems.length}</span>
                             )}
                         </button>
                     </div>
 
+                    {/* Content */}
                     <div className="compra-content">
                         {/* Panel Filtros */}
-                        <div className={`compra-panel filters-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
+                        <div className={`compra-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
+                            <h2 className="compra-section-title">
+                                <i className="fa fa-filter" />
+                                Filtrar Productos
+                            </h2>
                             <Filters
                                 showSearchBar={true}
                                 showPriceRange={true}
@@ -432,24 +460,32 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                         </div>
 
                         {/* Panel Productos */}
-                        <div className={`compra-panel products-panel ${activeTab === 'productos' ? 'active' : ''}`}>
+                        <div className={`compra-panel ${activeTab === 'productos' ? 'active' : ''}`}>
                             <h2 className="compra-section-title">
-                                <i className="fa fa-box" style={{marginRight: '10px', color: '#17a2b8'}} />
-                                Productos Disponibles ({productos.length})
+                                <i className="fa fa-box" />
+                                Productos para Comprar ({productos.length})
                             </h2>
-                            <div className="compra-products-grid">
-                                {productos.map((product) => (
-                                    <ProductCard
-                                        key={product.producto_id}
-                                        product={product}
-                                        onAddToCart={addToCart}
-                                    />
-                                ))}
-                            </div>
+                            
+                            {productos.length > 0 ? (
+                                <div className="compra-products-grid">
+                                    {productos.map((product) => (
+                                        <ProductCard
+                                            key={product.producto_id}
+                                            product={product}
+                                            onAddToCart={addToCart}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="compra-empty">
+                                    <i className="fa fa-box-open" />
+                                    <p>No hay productos disponibles</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Panel Carrito */}
-                        <div className={`compra-panel cart-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
+                        <div className={`compra-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
                             <Cart
                                 cartItems={cartItems}
                                 providers={proveedores}

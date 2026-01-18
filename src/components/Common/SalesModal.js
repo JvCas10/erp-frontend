@@ -16,7 +16,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
     const [cartItems, setCartItems] = useState([]);
     const [servicios, setServicios] = useState(services);
     const [activeTab, setActiveTab] = useState('productos');
-    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const [filters, setFilters] = useState({
         search: "",
@@ -28,17 +27,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         selectedProducts: []
     });
 
-    // Detectar cambios de tamaño de ventana
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const isMobile = windowWidth <= 768;
-    const isTablet = windowWidth > 768 && windowWidth <= 1024;
-
-    // Cargar productos compuestos al abrir el modal
     useEffect(() => {
         if (isOpen) {
             fetchProductosCompuestos();
@@ -55,7 +43,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
     };
 
-    // Filtrar los datos dinámicamente
     const handleFilter = (updatedFilters) => {
         const newFilters = { ...filters, ...updatedFilters };
         setFilters(newFilters);
@@ -368,7 +355,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
     };
 
-    // Calcular total del carrito
     const cartTotal = cartItems.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
     return (
@@ -380,7 +366,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background-color: rgba(0, 0, 0, 0.7);
+                    background-color: rgba(0, 0, 0, 0.8);
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -389,7 +375,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                 }
                 
                 .sales-modal {
-                    background-color: #f5f5f5;
+                    background-color: #f8f9fa;
                     width: 100%;
                     height: 100%;
                     display: flex;
@@ -398,23 +384,39 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     overflow: hidden;
                 }
                 
-                @media (min-width: 1025px) {
+                @media (min-width: 768px) {
                     .sales-modal-overlay {
                         padding: 20px;
                     }
                     .sales-modal {
-                        border-radius: 12px;
-                        max-width: 1400px;
-                        max-height: 95vh;
-                        height: auto;
+                        border-radius: 16px;
+                        max-width: 1000px;
+                        max-height: 90vh;
+                        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
                     }
                 }
                 
+                .sales-header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 15px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                }
+                
+                .sales-header-title {
+                    color: #fff;
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
                 .sales-close-btn {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background: #ff4757;
+                    background: rgba(255,255,255,0.2);
                     border: none;
                     border-radius: 50%;
                     width: 40px;
@@ -423,64 +425,80 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
-                    z-index: 100;
                     color: #fff;
-                    font-size: 20px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    font-size: 18px;
+                    transition: all 0.2s;
+                }
+                
+                .sales-close-btn:hover {
+                    background: rgba(255,255,255,0.3);
+                    transform: scale(1.1);
                 }
                 
                 .sales-tabs {
                     display: flex;
                     background: #fff;
-                    border-bottom: 2px solid #e0e0e0;
+                    border-bottom: 1px solid #e0e0e0;
                     padding: 0;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
                     flex-shrink: 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                 }
                 
                 .sales-tab {
                     flex: 1;
-                    min-width: 80px;
-                    padding: 15px 10px;
+                    padding: 12px 8px;
                     border: none;
                     background: transparent;
                     cursor: pointer;
-                    font-size: 12px;
+                    font-size: 13px;
                     font-weight: 600;
-                    color: #666;
+                    color: #888;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 5px;
+                    gap: 4px;
                     transition: all 0.2s;
                     position: relative;
-                    white-space: nowrap;
+                    border-bottom: 3px solid transparent;
+                }
+                
+                .sales-tab:hover {
+                    background: #f5f5f5;
                 }
                 
                 .sales-tab.active {
                     color: #667eea;
                     background: #f0f4ff;
-                }
-                
-                .sales-tab.active::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    height: 3px;
-                    background: #667eea;
+                    border-bottom-color: #667eea;
                 }
                 
                 .sales-tab-icon {
-                    font-size: 20px;
+                    font-size: 22px;
+                }
+                
+                .sales-tab-label {
+                    font-size: 11px;
+                }
+                
+                @media (min-width: 500px) {
+                    .sales-tab {
+                        flex-direction: row;
+                        gap: 8px;
+                        font-size: 14px;
+                    }
+                    .sales-tab-icon {
+                        font-size: 18px;
+                    }
+                    .sales-tab-label {
+                        font-size: 14px;
+                    }
                 }
                 
                 .sales-tab-badge {
                     position: absolute;
-                    top: 5px;
-                    right: 15px;
+                    top: 6px;
+                    right: 50%;
+                    transform: translateX(20px);
                     background: #667eea;
                     color: #fff;
                     font-size: 10px;
@@ -488,34 +506,44 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     border-radius: 10px;
                     min-width: 18px;
                     text-align: center;
+                    font-weight: 700;
                 }
                 
-                .sales-tab.cart-tab {
-                    background: #e8f5e9;
+                @media (min-width: 500px) {
+                    .sales-tab-badge {
+                        position: static;
+                        transform: none;
+                        margin-left: 5px;
+                    }
                 }
                 
                 .sales-tab.cart-tab.active {
-                    background: #c8e6c9;
+                    background: #e8f5e9;
                     color: #2e7d32;
+                    border-bottom-color: #2e7d32;
                 }
                 
-                .sales-tab.cart-tab.active::after {
+                .sales-tab.cart-tab .sales-tab-badge {
                     background: #2e7d32;
                 }
                 
                 .sales-content {
                     flex: 1;
                     overflow: hidden;
-                    display: flex;
-                    flex-direction: column;
+                    position: relative;
                 }
                 
                 .sales-panel {
-                    display: none;
-                    flex: 1;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
                     overflow-y: auto;
-                    padding: 15px;
+                    padding: 20px;
                     -webkit-overflow-scrolling: touch;
+                    display: none;
+                    background: #f8f9fa;
                 }
                 
                 .sales-panel.active {
@@ -523,167 +551,118 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                 }
                 
                 .sales-section-title {
-                    font-size: 18px;
+                    font-size: 20px;
                     font-weight: 700;
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                     color: #333;
-                    padding-bottom: 10px;
-                    border-bottom: 2px solid #667eea;
                     display: flex;
                     align-items: center;
+                    gap: 10px;
+                }
+                
+                .sales-section-title i {
+                    color: #667eea;
                 }
                 
                 .sales-products-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                    gap: 12px;
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                    gap: 15px;
                 }
                 
-                @media (max-width: 400px) {
+                @media (min-width: 768px) {
                     .sales-products-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                        gap: 8px;
+                        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                        gap: 20px;
                     }
                 }
                 
                 .sales-divider {
-                    margin: 25px 0 15px;
-                    padding-top: 20px;
+                    margin: 30px 0 20px;
+                    padding-top: 25px;
                     border-top: 2px dashed #ddd;
                 }
                 
-                /* Desktop Layout */
-                @media (min-width: 1025px) {
-                    .sales-tabs {
-                        display: none;
-                    }
-                    
-                    .sales-content {
-                        flex-direction: row;
-                        padding: 15px;
-                        gap: 15px;
-                    }
-                    
-                    .sales-panel {
-                        display: block !important;
-                        border-radius: 8px;
-                        background: #fff;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    }
-                    
-                    .sales-panel.filters-panel {
-                        width: 250px;
-                        flex-shrink: 0;
-                    }
-                    
-                    .sales-panel.products-panel {
-                        flex: 1;
-                    }
-                    
-                    .sales-panel.services-panel {
-                        width: 300px;
-                        flex-shrink: 0;
-                    }
-                    
-                    .sales-panel.cart-panel {
-                        width: 350px;
-                        flex-shrink: 0;
-                        border: 2px solid #2e7d32;
-                    }
+                .sales-empty {
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #999;
                 }
                 
-                /* Tablet Layout */
-                @media (min-width: 769px) and (max-width: 1024px) {
-                    .sales-tabs {
-                        display: none;
-                    }
-                    
-                    .sales-content {
-                        flex-direction: row;
-                        flex-wrap: wrap;
-                        padding: 10px;
-                        gap: 10px;
-                    }
-                    
-                    .sales-panel {
-                        display: block !important;
-                        border-radius: 8px;
-                        background: #fff;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    }
-                    
-                    .sales-panel.filters-panel {
-                        width: 200px;
-                        flex-shrink: 0;
-                    }
-                    
-                    .sales-panel.products-panel {
-                        flex: 1;
-                        min-width: 300px;
-                    }
-                    
-                    .sales-panel.services-panel {
-                        width: 100%;
-                        order: 4;
-                        max-height: 200px;
-                    }
-                    
-                    .sales-panel.cart-panel {
-                        width: 280px;
-                        flex-shrink: 0;
-                        border: 2px solid #2e7d32;
-                    }
+                .sales-empty i {
+                    font-size: 48px;
+                    margin-bottom: 15px;
+                    opacity: 0.5;
+                }
+                
+                .sales-empty p {
+                    font-size: 16px;
+                    margin: 0;
                 }
             `}</style>
             
             <div className="sales-modal-overlay">
                 <div className="sales-modal">
-                    <button className="sales-close-btn" onClick={onClose}>
-                        <i className="fa fa-times" />
-                    </button>
+                    {/* Header */}
+                    <div className="sales-header">
+                        <h2 className="sales-header-title">
+                            <i className="fa fa-cash-register" />
+                            Nueva Venta
+                        </h2>
+                        <button className="sales-close-btn" onClick={onClose}>
+                            <i className="fa fa-times" />
+                        </button>
+                    </div>
 
-                    {/* Tabs para móvil */}
+                    {/* Tabs */}
                     <div className="sales-tabs">
                         <button 
                             className={`sales-tab ${activeTab === 'filtros' ? 'active' : ''}`}
                             onClick={() => setActiveTab('filtros')}
                         >
                             <i className="fa fa-filter sales-tab-icon" />
-                            <span>Filtros</span>
+                            <span className="sales-tab-label">Filtros</span>
                         </button>
                         <button 
                             className={`sales-tab ${activeTab === 'productos' ? 'active' : ''}`}
                             onClick={() => setActiveTab('productos')}
                         >
                             <i className="fa fa-box sales-tab-icon" />
-                            <span>Productos</span>
-                            <span className="sales-tab-badge">{productos.length}</span>
+                            <span className="sales-tab-label">Productos</span>
+                            {productos.length > 0 && (
+                                <span className="sales-tab-badge">{productos.length}</span>
+                            )}
                         </button>
                         <button 
                             className={`sales-tab ${activeTab === 'servicios' ? 'active' : ''}`}
                             onClick={() => setActiveTab('servicios')}
                         >
                             <i className="fa fa-concierge-bell sales-tab-icon" />
-                            <span>Servicios</span>
-                            <span className="sales-tab-badge">{servicios.length}</span>
+                            <span className="sales-tab-label">Servicios</span>
+                            {servicios.length > 0 && (
+                                <span className="sales-tab-badge">{servicios.length}</span>
+                            )}
                         </button>
                         <button 
                             className={`sales-tab cart-tab ${activeTab === 'carrito' ? 'active' : ''}`}
                             onClick={() => setActiveTab('carrito')}
                         >
                             <i className="fa fa-shopping-cart sales-tab-icon" />
-                            <span>Carrito</span>
+                            <span className="sales-tab-label">Carrito</span>
                             {cartItems.length > 0 && (
-                                <span className="sales-tab-badge" style={{background: '#2e7d32'}}>
-                                    {cartItems.length}
-                                </span>
+                                <span className="sales-tab-badge">{cartItems.length}</span>
                             )}
                         </button>
                     </div>
 
+                    {/* Content */}
                     <div className="sales-content">
                         {/* Panel Filtros */}
-                        <div className={`sales-panel filters-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
+                        <div className={`sales-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
+                            <h2 className="sales-section-title">
+                                <i className="fa fa-filter" />
+                                Filtrar Productos
+                            </h2>
                             <Filters
                                 showSearchBar={true}
                                 showPriceRange={true}
@@ -697,25 +676,33 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         </div>
 
                         {/* Panel Productos */}
-                        <div className={`sales-panel products-panel ${activeTab === 'productos' ? 'active' : ''}`}>
+                        <div className={`sales-panel ${activeTab === 'productos' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
-                                <i className="fa fa-box" style={{marginRight: '10px', color: '#667eea'}} />
-                                Productos ({productos.length})
+                                <i className="fa fa-box" />
+                                Productos Disponibles ({productos.length})
                             </h2>
-                            <div className="sales-products-grid">
-                                {productos.map((product) => (
-                                    <ProductCard 
-                                        key={product.producto_id} 
-                                        product={product} 
-                                        onAddToCart={addToCart} 
-                                    />
-                                ))}
-                            </div>
+                            
+                            {productos.length > 0 ? (
+                                <div className="sales-products-grid">
+                                    {productos.map((product) => (
+                                        <ProductCard 
+                                            key={product.producto_id} 
+                                            product={product} 
+                                            onAddToCart={addToCart} 
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="sales-empty">
+                                    <i className="fa fa-box-open" />
+                                    <p>No hay productos disponibles</p>
+                                </div>
+                            )}
 
                             {productosCompuestos.length > 0 && (
                                 <>
                                     <h2 className="sales-section-title sales-divider">
-                                        <i className="fa fa-boxes" style={{marginRight: '10px', color: '#667eea'}} />
+                                        <i className="fa fa-boxes" />
                                         Productos Compuestos ({productosCompuestos.length})
                                     </h2>
                                     <div className="sales-products-grid">
@@ -738,24 +725,32 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         </div>
 
                         {/* Panel Servicios */}
-                        <div className={`sales-panel services-panel ${activeTab === 'servicios' ? 'active' : ''}`}>
+                        <div className={`sales-panel ${activeTab === 'servicios' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
-                                <i className="fa fa-concierge-bell" style={{marginRight: '10px', color: '#667eea'}} />
-                                Servicios ({servicios.length})
+                                <i className="fa fa-concierge-bell" />
+                                Servicios Disponibles ({servicios.length})
                             </h2>
-                            <div className="sales-products-grid">
-                                {servicios.map((service) => (
-                                    <ServiceCard 
-                                        key={service.servicio_id} 
-                                        service={service} 
-                                        onAddToCart={addToCart} 
-                                    />
-                                ))}
-                            </div>
+                            
+                            {servicios.length > 0 ? (
+                                <div className="sales-products-grid">
+                                    {servicios.map((service) => (
+                                        <ServiceCard 
+                                            key={service.servicio_id} 
+                                            service={service} 
+                                            onAddToCart={addToCart} 
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="sales-empty">
+                                    <i className="fa fa-concierge-bell" />
+                                    <p>No hay servicios disponibles</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Panel Carrito */}
-                        <div className={`sales-panel cart-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
+                        <div className={`sales-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
                             <Cart
                                 cartItems={cartItems}
                                 clients={clientes}
