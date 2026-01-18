@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import "../../assets/styles/CompraModal.css";
+import React, { useState, useEffect } from "react";
 import Filters from "../Common/Filters";
 import ProductCard from "./ProductCard";
 import Cart from "./Cart";
@@ -12,7 +11,8 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
 
     const [productos, setProductos] = useState(products);
     const [cartItems, setCartItems] = useState([]);
-    const [activeTab, setActiveTab] = useState('productos'); // Para móvil
+    const [activeTab, setActiveTab] = useState('productos');
+    const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
     const [filters, setFilters] = useState({
         search: "",
@@ -24,18 +24,24 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         selectedProducts: []
     });
 
+    // Detectar cambios de tamaño de ventana
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const isMobile = windowWidth <= 768;
+
     // Filtrar los datos dinamicamente
     const handleFilter = (updatedFilters) => {
         const newFilters = { ...filters, ...updatedFilters };
         setFilters(newFilters);
 
-        // Primero, actualizar el stock de los productos basado en el carrito
         let filteredProducts = products.filter((producto) => {
             return !cartItems.some((item) => item.producto_id === producto.producto_id);
         });
 
-
-        // Filtrar por búsqueda
         if (newFilters.search !== "") {
             const search = newFilters.search.toLowerCase();
             filteredProducts = filteredProducts.filter((producto) => {
@@ -52,31 +58,26 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             });
         }
 
-        // Filtrar por rango de precios
         filteredProducts = filteredProducts.filter((producto) => {
             return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
         });
 
-        // Filtrar por rango de stock
         filteredProducts = filteredProducts.filter((producto) => {
             return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
         });
 
-        // Filtrar por colores
         if (newFilters.selectedColors.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedColors.includes(producto.color);
             });
         }
 
-        // Filtrar por categorias
         if (newFilters.selectedCategories.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedCategories.includes(producto.categoria);
             });
         }
 
-        // Filtrar por segmentos
         if (newFilters.selectedSegments.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedSegments.includes(producto.segmento);
@@ -86,7 +87,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setProductos(filteredProducts);
     }
 
-    // Agregar un producto al carrito de compra a proveedores
     const addToCart = (item, itemType) => {
         if (itemType !== "producto") return;
 
@@ -105,8 +105,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setProductos(newProducts);
     };
 
-
-    // Manejar el cambio de precio
     const handlePriceChange = (producto, precio) => {
         const newCartItems = cartItems.map((item) => {
             if (item.producto_id === producto.producto_id) {
@@ -118,7 +116,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setCartItems(newCartItems);
     }
 
-    // Manejar el cambio de la cantidad
     const handleQuantityChange = (producto, cantidad) => {
         const newCartItems = cartItems.map((item) => {
             if (item.producto_id === producto.producto_id) {
@@ -130,7 +127,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setCartItems(newCartItems);
     }
 
-    // Manejar el remove del producto, se retira del carrito
     const removeFromCart = (producto) => {
         const newCartItems = cartItems.filter((item) => item.producto_id !== producto.producto_id);
         setCartItems(newCartItems);
@@ -146,8 +142,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setProductos(newProducts);
     };
 
-
-    // Manejar el registro de la compra y cerrar el modal
     const handlePurchase = async (cartItems, provider, total) => {
         if (!provider || cartItems.length === 0 || total <= 0) {
             alert("Por favor, complete todos los campos.");
@@ -165,10 +159,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             }))
         }
 
-        console.log("Envia la compra:", compraData);
-
         const response = await createCompra(compraData);
-
         alert(response.message);
 
         if (response.success) {
@@ -178,232 +169,301 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         }
     }
 
-    // Estilos responsive inline
-    const styles = {
-        overlay: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 9999,
-            padding: '10px',
-        },
-        modal: {
-            backgroundColor: '#fff',
-            borderRadius: '12px',
-            width: '100%',
-            maxWidth: '1200px',
-            height: '95vh',
-            maxHeight: '95vh',
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-            overflow: 'hidden',
-        },
-        closeBtn: {
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: '#ff4757',
-            border: 'none',
-            borderRadius: '50%',
-            width: '36px',
-            height: '36px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 10,
-            color: '#fff',
-            fontSize: '18px',
-        },
-        mobileNav: {
-            display: 'none',
-            padding: '10px',
-            gap: '5px',
-            backgroundColor: '#f8f9fa',
-            borderBottom: '1px solid #dee2e6',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-        },
-        tabBtn: {
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '20px',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s',
-        },
-        container: {
-            display: 'grid',
-            gridTemplateColumns: '250px 1fr 350px',
-            gap: '15px',
-            padding: '15px',
-            height: 'calc(100% - 50px)',
-            overflow: 'hidden',
-        },
-        section: {
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            padding: '15px',
-            overflow: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-        },
-        sectionTitle: {
-            fontSize: '18px',
-            fontWeight: '600',
-            marginBottom: '15px',
-            color: '#333',
-            position: 'sticky',
-            top: 0,
-            backgroundColor: '#f8f9fa',
-            paddingBottom: '10px',
-            zIndex: 1,
-        },
-        grid: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: '10px',
-        },
-    };
-
-    // Detectar si es móvil
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-
     return (
-        <div style={styles.overlay} className="compra-modal-overlay">
-            <div style={styles.modal} className="compra-modal">
-                <button style={styles.closeBtn} onClick={onClose}>
-                    <i className="fa fa-times" />
-                </button>
-
-                {/* Navegación móvil con tabs */}
-                <div style={styles.mobileNav} className="mobile-nav">
-                    <button 
-                        style={{
-                            ...styles.tabBtn,
-                            backgroundColor: activeTab === 'filtros' ? '#667eea' : '#e9ecef',
-                            color: activeTab === 'filtros' ? '#fff' : '#495057',
-                        }}
-                        onClick={() => setActiveTab('filtros')}
-                    >
-                        <i className="fa fa-filter" /> Filtros
-                    </button>
-                    <button 
-                        style={{
-                            ...styles.tabBtn,
-                            backgroundColor: activeTab === 'productos' ? '#667eea' : '#e9ecef',
-                            color: activeTab === 'productos' ? '#fff' : '#495057',
-                        }}
-                        onClick={() => setActiveTab('productos')}
-                    >
-                        <i className="fa fa-box" /> Productos ({productos.length})
-                    </button>
-                    <button 
-                        style={{
-                            ...styles.tabBtn,
-                            backgroundColor: activeTab === 'carrito' ? '#28a745' : '#e9ecef',
-                            color: activeTab === 'carrito' ? '#fff' : '#495057',
-                        }}
-                        onClick={() => setActiveTab('carrito')}
-                    >
-                        <i className="fa fa-shopping-cart" /> Carrito ({cartItems.length})
-                    </button>
-                </div>
-
-                <div style={styles.container} className="compra-container">
-                    {/* Filtros */}
-                    <div 
-                        style={{
-                            ...styles.section,
-                            display: isMobile ? (activeTab === 'filtros' ? 'flex' : 'none') : 'flex',
-                        }}
-                        className="filters-section"
-                    >
-                        <Filters
-                            showSearchBar={true}
-                            showPriceRange={true}
-                            showStockRange={true}
-                            showColors={true}
-                            showCategories={true}
-                            showSegments={true}
-                            onFilterChange={handleFilter}
-                        />
-                    </div>
-
-                    {/* Productos */}
-                    <div 
-                        style={{
-                            ...styles.section,
-                            display: isMobile ? (activeTab === 'productos' ? 'flex' : 'none') : 'flex',
-                        }}
-                        className="products-section"
-                    >
-                        <h2 style={styles.sectionTitle}>Productos</h2>
-                        <div style={styles.grid} className="products-grid">
-                            {productos.map((product) => (
-                                <ProductCard
-                                    key={product.producto_id}
-                                    product={product}
-                                    onAddToCart={addToCart}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Carrito */}
-                    <div 
-                        style={{
-                            ...styles.section,
-                            display: isMobile ? (activeTab === 'carrito' ? 'flex' : 'none') : 'flex',
-                            backgroundColor: '#fff',
-                            border: '2px solid #17a2b8',
-                        }}
-                        className="cart-section"
-                    >
-                        <Cart
-                            cartItems={cartItems}
-                            providers={proveedores}
-                            isPurchase={true}
-                            handlePriceChange={handlePriceChange}
-                            handleQuantityChange={handleQuantityChange}
-                            handleRemoveCart={removeFromCart}
-                            handleSubmit={handlePurchase}
-                        />
-                    </div>
-                </div>
-            </div>
-
+        <>
             <style>{`
-                @media (max-width: 768px) {
-                    .compra-modal-overlay .mobile-nav {
-                        display: flex !important;
+                .compra-modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                    padding: 0;
+                }
+                
+                .compra-modal {
+                    background-color: #f5f5f5;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                @media (min-width: 1025px) {
+                    .compra-modal-overlay {
+                        padding: 20px;
                     }
-                    .compra-modal-overlay .compra-container {
-                        grid-template-columns: 1fr !important;
-                        height: calc(100% - 110px) !important;
+                    .compra-modal {
+                        border-radius: 12px;
+                        max-width: 1200px;
+                        max-height: 95vh;
+                        height: auto;
                     }
                 }
-                @media (min-width: 769px) and (max-width: 1024px) {
-                    .compra-modal-overlay .compra-container {
-                        grid-template-columns: 200px 1fr 300px !important;
+                
+                .compra-close-btn {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: #ff4757;
+                    border: none;
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    z-index: 100;
+                    color: #fff;
+                    font-size: 20px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                }
+                
+                .compra-tabs {
+                    display: flex;
+                    background: #fff;
+                    border-bottom: 2px solid #e0e0e0;
+                    padding: 0;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    flex-shrink: 0;
+                }
+                
+                .compra-tab {
+                    flex: 1;
+                    min-width: 100px;
+                    padding: 15px 10px;
+                    border: none;
+                    background: transparent;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #666;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 5px;
+                    transition: all 0.2s;
+                    position: relative;
+                    white-space: nowrap;
+                }
+                
+                .compra-tab.active {
+                    color: #17a2b8;
+                    background: #e3f7fa;
+                }
+                
+                .compra-tab.active::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: #17a2b8;
+                }
+                
+                .compra-tab-icon {
+                    font-size: 20px;
+                }
+                
+                .compra-tab-badge {
+                    position: absolute;
+                    top: 5px;
+                    right: 20px;
+                    background: #17a2b8;
+                    color: #fff;
+                    font-size: 10px;
+                    padding: 2px 6px;
+                    border-radius: 10px;
+                    min-width: 18px;
+                    text-align: center;
+                }
+                
+                .compra-tab.cart-tab {
+                    background: #fff3e0;
+                }
+                
+                .compra-tab.cart-tab.active {
+                    background: #ffe0b2;
+                    color: #e65100;
+                }
+                
+                .compra-tab.cart-tab.active::after {
+                    background: #e65100;
+                }
+                
+                .compra-content {
+                    flex: 1;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .compra-panel {
+                    display: none;
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 15px;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                .compra-panel.active {
+                    display: block;
+                }
+                
+                .compra-section-title {
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-bottom: 15px;
+                    color: #333;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #17a2b8;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .compra-products-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 12px;
+                }
+                
+                @media (max-width: 400px) {
+                    .compra-products-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 8px;
                     }
                 }
+                
+                /* Desktop Layout */
                 @media (min-width: 769px) {
-                    .compra-modal-overlay .mobile-nav {
-                        display: none !important;
+                    .compra-tabs {
+                        display: none;
+                    }
+                    
+                    .compra-content {
+                        flex-direction: row;
+                        padding: 15px;
+                        gap: 15px;
+                    }
+                    
+                    .compra-panel {
+                        display: block !important;
+                        border-radius: 8px;
+                        background: #fff;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    }
+                    
+                    .compra-panel.filters-panel {
+                        width: 250px;
+                        flex-shrink: 0;
+                    }
+                    
+                    .compra-panel.products-panel {
+                        flex: 1;
+                    }
+                    
+                    .compra-panel.cart-panel {
+                        width: 350px;
+                        flex-shrink: 0;
+                        border: 2px solid #e65100;
                     }
                 }
             `}</style>
-        </div>
+            
+            <div className="compra-modal-overlay">
+                <div className="compra-modal">
+                    <button className="compra-close-btn" onClick={onClose}>
+                        <i className="fa fa-times" />
+                    </button>
+
+                    {/* Tabs para móvil */}
+                    <div className="compra-tabs">
+                        <button 
+                            className={`compra-tab ${activeTab === 'filtros' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('filtros')}
+                        >
+                            <i className="fa fa-filter compra-tab-icon" />
+                            <span>Filtros</span>
+                        </button>
+                        <button 
+                            className={`compra-tab ${activeTab === 'productos' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('productos')}
+                        >
+                            <i className="fa fa-box compra-tab-icon" />
+                            <span>Productos</span>
+                            <span className="compra-tab-badge">{productos.length}</span>
+                        </button>
+                        <button 
+                            className={`compra-tab cart-tab ${activeTab === 'carrito' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('carrito')}
+                        >
+                            <i className="fa fa-shopping-cart compra-tab-icon" />
+                            <span>Carrito</span>
+                            {cartItems.length > 0 && (
+                                <span className="compra-tab-badge" style={{background: '#e65100'}}>
+                                    {cartItems.length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="compra-content">
+                        {/* Panel Filtros */}
+                        <div className={`compra-panel filters-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
+                            <Filters
+                                showSearchBar={true}
+                                showPriceRange={true}
+                                showStockRange={true}
+                                showColors={true}
+                                showCategories={true}
+                                showSegments={true}
+                                onFilterChange={handleFilter}
+                            />
+                        </div>
+
+                        {/* Panel Productos */}
+                        <div className={`compra-panel products-panel ${activeTab === 'productos' ? 'active' : ''}`}>
+                            <h2 className="compra-section-title">
+                                <i className="fa fa-box" style={{marginRight: '10px', color: '#17a2b8'}} />
+                                Productos Disponibles ({productos.length})
+                            </h2>
+                            <div className="compra-products-grid">
+                                {productos.map((product) => (
+                                    <ProductCard
+                                        key={product.producto_id}
+                                        product={product}
+                                        onAddToCart={addToCart}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Panel Carrito */}
+                        <div className={`compra-panel cart-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
+                            <Cart
+                                cartItems={cartItems}
+                                providers={proveedores}
+                                isPurchase={true}
+                                handlePriceChange={handlePriceChange}
+                                handleQuantityChange={handleQuantityChange}
+                                handleRemoveCart={removeFromCart}
+                                handleSubmit={handlePurchase}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 };
 
