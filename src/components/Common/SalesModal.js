@@ -16,6 +16,8 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
     const [productosCompuestos, setProductosCompuestos] = useState([]);
     const [cartItems, setCartItems] = useState([]);
     const [servicios, setServicios] = useState(services);
+    const [activeTab, setActiveTab] = useState('productos'); // Para móvil
+    const [showFilters, setShowFilters] = useState(false); // Toggle filtros en móvil
 
     const [filters, setFilters] = useState({
         search: "",
@@ -390,16 +392,187 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
     };
 
+    // Estilos responsive inline
+    const styles = {
+        overlay: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+            padding: '10px',
+        },
+        modal: {
+            backgroundColor: '#fff',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '1400px',
+            height: '95vh',
+            maxHeight: '95vh',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            overflow: 'hidden',
+        },
+        closeBtn: {
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: '#ff4757',
+            border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 10,
+            color: '#fff',
+            fontSize: '18px',
+        },
+        mobileNav: {
+            display: 'none',
+            padding: '10px',
+            gap: '5px',
+            backgroundColor: '#f8f9fa',
+            borderBottom: '1px solid #dee2e6',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+        },
+        tabBtn: {
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s',
+        },
+        container: {
+            display: 'grid',
+            gridTemplateColumns: '250px 1fr 1fr 350px',
+            gap: '15px',
+            padding: '15px',
+            height: 'calc(100% - 50px)',
+            overflow: 'hidden',
+        },
+        section: {
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            padding: '15px',
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+        },
+        sectionTitle: {
+            fontSize: '18px',
+            fontWeight: '600',
+            marginBottom: '15px',
+            color: '#333',
+            position: 'sticky',
+            top: 0,
+            backgroundColor: '#f8f9fa',
+            paddingBottom: '10px',
+            zIndex: 1,
+        },
+        grid: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+            gap: '10px',
+        },
+        filterToggle: {
+            display: 'none',
+            padding: '10px 15px',
+            backgroundColor: '#667eea',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            marginBottom: '10px',
+            cursor: 'pointer',
+        },
+    };
+
+    // Media query styles (aplicados condicionalmente)
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const isTablet = typeof window !== 'undefined' && window.innerWidth <= 1024 && window.innerWidth > 768;
+
+    if (isMobile) {
+        styles.mobileNav.display = 'flex';
+        styles.container.gridTemplateColumns = '1fr';
+        styles.container.padding = '10px';
+        styles.container.height = 'calc(100% - 110px)';
+        styles.filterToggle.display = 'block';
+    } else if (isTablet) {
+        styles.container.gridTemplateColumns = '200px 1fr 300px';
+    }
+
     return (
-        <div className="sales-modal-overlay">
-            <div className="sales-modal">
-                <button className="close-btn" onClick={onClose}>
+        <div style={styles.overlay} className="sales-modal-overlay">
+            <div style={styles.modal} className="sales-modal">
+                <button style={styles.closeBtn} onClick={onClose}>
                     <i className="fa fa-times" />
                 </button>
 
-                <div className="sales-container">
+                {/* Navegación móvil con tabs */}
+                <div style={styles.mobileNav} className="mobile-nav">
+                    <button 
+                        style={{
+                            ...styles.tabBtn,
+                            backgroundColor: activeTab === 'filtros' ? '#667eea' : '#e9ecef',
+                            color: activeTab === 'filtros' ? '#fff' : '#495057',
+                        }}
+                        onClick={() => setActiveTab('filtros')}
+                    >
+                        <i className="fa fa-filter" /> Filtros
+                    </button>
+                    <button 
+                        style={{
+                            ...styles.tabBtn,
+                            backgroundColor: activeTab === 'productos' ? '#667eea' : '#e9ecef',
+                            color: activeTab === 'productos' ? '#fff' : '#495057',
+                        }}
+                        onClick={() => setActiveTab('productos')}
+                    >
+                        <i className="fa fa-box" /> Productos ({productos.length})
+                    </button>
+                    <button 
+                        style={{
+                            ...styles.tabBtn,
+                            backgroundColor: activeTab === 'servicios' ? '#667eea' : '#e9ecef',
+                            color: activeTab === 'servicios' ? '#fff' : '#495057',
+                        }}
+                        onClick={() => setActiveTab('servicios')}
+                    >
+                        <i className="fa fa-concierge-bell" /> Servicios ({servicios.length})
+                    </button>
+                    <button 
+                        style={{
+                            ...styles.tabBtn,
+                            backgroundColor: activeTab === 'carrito' ? '#28a745' : '#e9ecef',
+                            color: activeTab === 'carrito' ? '#fff' : '#495057',
+                        }}
+                        onClick={() => setActiveTab('carrito')}
+                    >
+                        <i className="fa fa-shopping-cart" /> Carrito ({cartItems.length})
+                    </button>
+                </div>
+
+                <div style={styles.container} className="sales-container">
                     {/* Filtros */}
-                    <div className="filters-section">
+                    <div 
+                        style={{
+                            ...styles.section,
+                            display: isMobile ? (activeTab === 'filtros' ? 'flex' : 'none') : 'flex',
+                        }} 
+                        className="filters-section"
+                    >
                         <Filters
                             showSearchBar={true}
                             showPriceRange={true}
@@ -413,9 +586,15 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     </div>
 
                     {/* Lista de Productos */}
-                    <div className="products-section">
-                        <h2>Productos</h2>
-                        <div className="products-grid">
+                    <div 
+                        style={{
+                            ...styles.section,
+                            display: isMobile ? (activeTab === 'productos' ? 'flex' : 'none') : 'flex',
+                        }}
+                        className="products-section"
+                    >
+                        <h2 style={styles.sectionTitle}>Productos</h2>
+                        <div style={styles.grid} className="products-grid">
                             {productos.map((product) => (
                                 <ProductCard 
                                     key={product.producto_id} 
@@ -427,10 +606,10 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         {/* Productos Compuestos */}
                         {productosCompuestos.length > 0 && (
                             <>
-                                <h2 style={{ marginTop: "30px", borderTop: "2px solid #eee", paddingTop: "20px" }}>
+                                <h2 style={{ ...styles.sectionTitle, marginTop: '20px', borderTop: '2px solid #dee2e6', paddingTop: '15px' }}>
                                     Productos Compuestos
                                 </h2>
-                                <div className="products-grid">
+                                <div style={styles.grid} className="products-grid">
                                     {productosCompuestos.map((compuesto) => (
                                         <ProductCard 
                                             key={`compuesto-${compuesto.producto_compuesto_id}`}
@@ -450,9 +629,15 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     </div>
 
                     {/* Lista de Servicios */}
-                    <div className="services-section">
-                        <h2>Servicios</h2>
-                        <div className="services-grid">
+                    <div 
+                        style={{
+                            ...styles.section,
+                            display: isMobile ? (activeTab === 'servicios' ? 'flex' : 'none') : 'flex',
+                        }}
+                        className="services-section"
+                    >
+                        <h2 style={styles.sectionTitle}>Servicios</h2>
+                        <div style={styles.grid} className="services-grid">
                             {servicios.map((service) => (
                                 <ServiceCard 
                                     key={service.servicio_id} 
@@ -464,7 +649,15 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     </div>
 
                     {/* Carrito */}
-                    <div className="cart-section">
+                    <div 
+                        style={{
+                            ...styles.section,
+                            display: isMobile ? (activeTab === 'carrito' ? 'flex' : 'none') : 'flex',
+                            backgroundColor: '#fff',
+                            border: '2px solid #28a745',
+                        }}
+                        className="cart-section"
+                    >
                         <Cart
                             cartItems={cartItems}
                             clients={clientes}
@@ -476,6 +669,31 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                @media (max-width: 768px) {
+                    .sales-modal-overlay .mobile-nav {
+                        display: flex !important;
+                    }
+                    .sales-modal-overlay .sales-container {
+                        grid-template-columns: 1fr !important;
+                        height: calc(100% - 110px) !important;
+                    }
+                }
+                @media (min-width: 769px) and (max-width: 1024px) {
+                    .sales-modal-overlay .sales-container {
+                        grid-template-columns: 200px 1fr 300px !important;
+                    }
+                    .sales-modal-overlay .services-section {
+                        display: none;
+                    }
+                }
+                @media (min-width: 769px) {
+                    .sales-modal-overlay .mobile-nav {
+                        display: none !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

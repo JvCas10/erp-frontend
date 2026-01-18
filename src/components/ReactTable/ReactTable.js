@@ -72,17 +72,53 @@ export function RangeSliderFilter({ column: { filterValue = [], setFilter } }) {
 }
 
 /* =========================
+   ESTILOS RESPONSIVE
+========================= */
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    .rt-pagination-container {
+      flex-direction: column !important;
+      gap: 10px;
+    }
+    .rt-pagination-container .rt-pagination-btn {
+      width: 100%;
+      margin: 5px 0;
+    }
+    .rt-pagination-container .rt-pagination-selects {
+      flex-direction: column;
+      width: 100%;
+    }
+    .rt-pagination-container .rt-pagination-selects > div {
+      width: 100% !important;
+      margin-bottom: 10px;
+    }
+    .ReactTable .rt-table {
+      min-width: 100% !important;
+    }
+    .ReactTable .rt-th,
+    .ReactTable .rt-td {
+      padding: 8px 5px !important;
+      font-size: 12px !important;
+    }
+    .ReactTable .rt-input {
+      font-size: 12px !important;
+      padding: 4px !important;
+    }
+  }
+`;
+
+/* =========================
    TABLA
 ========================= */
 
 function Table({ columns, data }) {
   const [numberOfRows, setNumberOfRows] = React.useState({
     value: 10,
-    label: "10 rows",
+    label: "10 filas",
   });
   const [pageSelect, setPageSelect] = React.useState({
     value: 0,
-    label: "Page 1",
+    label: "Página 1",
   });
 
   const filterTypes = React.useMemo(
@@ -126,7 +162,7 @@ function Table({ columns, data }) {
 
   const pageSelectOptions = pageOptions.map((_, index) => ({
     value: index,
-    label: `Page ${index + 1}`,
+    label: `Página ${index + 1}`,
   }));
 
   const rowsOptions = [5, 10, 20, 25, 50, 100].map((n) => ({
@@ -135,117 +171,140 @@ function Table({ columns, data }) {
   }));
 
   return (
-    <div className="ReactTable -striped -highlight primary-pagination">
-      {/* PAGINACIÓN SUPERIOR */}
-      <div className="pagination-top">
-        <div className="-pagination">
-          <div className="-previous">
-            <button
-              type="button"
-              onClick={previousPage}
-              disabled={!canPreviousPage}
-              className="-btn"
-            >
-              Anterior
-            </button>
-          </div>
+    <>
+      <style>{responsiveStyles}</style>
+      <div className="ReactTable -striped -highlight primary-pagination">
+        {/* PAGINACIÓN SUPERIOR */}
+        <div className="pagination-top">
+          <div 
+            className="-pagination rt-pagination-container"
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 0'
+            }}
+          >
+            <div className="-previous rt-pagination-btn">
+              <button
+                type="button"
+                onClick={previousPage}
+                disabled={!canPreviousPage}
+                className="-btn"
+                style={{ width: '100%', minWidth: '80px' }}
+              >
+                Anterior
+              </button>
+            </div>
 
-          <div className="-center">
-            <Container>
-              <Row className="justify-content-center">
-                <Col md="4" sm="6" xs="12">
-                  <Select
-                    className="react-select primary"
-                    classNamePrefix="react-select"
-                    value={pageSelect}
-                    onChange={(val) => {
-                      gotoPage(val.value);
-                      setPageSelect(val);
-                    }}
-                    options={pageSelectOptions}
-                  />
-                </Col>
-                <Col md="4" sm="6" xs="12">
-                  <Select
-                    className="react-select primary"
-                    classNamePrefix="react-select"
-                    value={numberOfRows}
-                    onChange={(val) => {
-                      setPageSize(val.value);
-                      setNumberOfRows(val);
-                    }}
-                    options={rowsOptions}
-                  />
-                </Col>
-              </Row>
-            </Container>
-          </div>
-
-          <div className="-next">
-            <button
-              type="button"
-              onClick={nextPage}
-              disabled={!canNextPage}
-              className="-btn"
+            <div 
+              className="-center rt-pagination-selects"
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '10px',
+                flex: 1,
+                justifyContent: 'center',
+                padding: '0 10px'
+              }}
             >
-              Siguiente
-            </button>
+              <div style={{ minWidth: '120px', flex: '1 1 120px', maxWidth: '200px' }}>
+                <Select
+                  className="react-select primary"
+                  classNamePrefix="react-select"
+                  value={pageSelect}
+                  onChange={(val) => {
+                    gotoPage(val.value);
+                    setPageSelect(val);
+                  }}
+                  options={pageSelectOptions}
+                  menuPortalTarget={document.body}
+                  styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                />
+              </div>
+              <div style={{ minWidth: '120px', flex: '1 1 120px', maxWidth: '200px' }}>
+                <Select
+                  className="react-select primary"
+                  classNamePrefix="react-select"
+                  value={numberOfRows}
+                  onChange={(val) => {
+                    setPageSize(val.value);
+                    setNumberOfRows(val);
+                  }}
+                  options={rowsOptions}
+                  menuPortalTarget={document.body}
+                  styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                />
+              </div>
+            </div>
+
+            <div className="-next rt-pagination-btn">
+              <button
+                type="button"
+                onClick={nextPage}
+                disabled={!canNextPage}
+                className="-btn"
+                style={{ width: '100%', minWidth: '80px' }}
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* TABLA */}
-      <div style={{ overflowX: "auto" }}>
-        <table
-          {...getTableProps()}
-          className="rt-table"
-          style={{ minWidth: "1400px" }} // ajusta si agregas más columnas
-        >
-          <thead className="rt-thead -header">
-            {headerGroups.map((group) => (
-              <tr {...group.getHeaderGroupProps()} className="rt-tr">
-                {group.headers.map((column, key) => (
-                  <th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className={classnames("rt-th", {
-                      "-sort-asc": column.isSorted && !column.isSortedDesc,
-                      "-sort-desc": column.isSorted && column.isSortedDesc,
-                    })}
-                  >
-                    <div>{column.render("Header")}</div>
-                    {key !== group.headers.length - 1 &&
-                      column.canFilter &&
-                      column.render("Filter")}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-
-          <tbody {...getTableBodyProps()} className="rt-tbody">
-            {page.map((row, i) => {
-              prepareRow(row);
-              return (
-                <tr
-                  {...row.getRowProps()}
-                  className={classnames("rt-tr", {
-                    "-odd": i % 2 === 0,
-                    "-even": i % 2 === 1,
-                  })}
-                >
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()} className="rt-td">
-                      {cell.render("Cell")}
-                    </td>
+        {/* TABLA CON SCROLL HORIZONTAL */}
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: 'touch' }}>
+          <table
+            {...getTableProps()}
+            className="rt-table"
+            style={{ minWidth: "800px", width: '100%' }}
+          >
+            <thead className="rt-thead -header">
+              {headerGroups.map((group) => (
+                <tr {...group.getHeaderGroupProps()} className="rt-tr">
+                  {group.headers.map((column, key) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      className={classnames("rt-th", {
+                        "-sort-asc": column.isSorted && !column.isSortedDesc,
+                        "-sort-desc": column.isSorted && column.isSortedDesc,
+                      })}
+                    >
+                      <div>{column.render("Header")}</div>
+                      {key !== group.headers.length - 1 &&
+                        column.canFilter &&
+                        column.render("Filter")}
+                    </th>
                   ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </thead>
 
-    </div>
+            <tbody {...getTableBodyProps()} className="rt-tbody">
+              {page.map((row, i) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    {...row.getRowProps()}
+                    className={classnames("rt-tr", {
+                      "-odd": i % 2 === 0,
+                      "-even": i % 2 === 1,
+                    })}
+                  >
+                    {row.cells.map((cell) => (
+                      <td {...cell.getCellProps()} className="rt-td">
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
   );
 }
 
