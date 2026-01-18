@@ -304,6 +304,39 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
     };
 
+    // Eliminar item del carrito completamente
+    const removeFromCart = (item) => {
+        const itemIdKey = item.itemType === "producto" ? "producto_id" : 
+                         item.itemType === "servicio" ? "servicio_id" : 
+                         "producto_compuesto_id";
+
+        const newCartItems = cartItems.filter(
+            (cartItem) => !(cartItem[itemIdKey] === item[itemIdKey] && cartItem.itemType === item.itemType)
+        );
+
+        setCartItems(newCartItems);
+
+        // Restaurar stock si es producto
+        if (item.itemType === "producto") {
+            const originalProduct = products.find(p => p.producto_id === item.producto_id);
+            if (originalProduct) {
+                const restoredProduct = { ...originalProduct };
+                const updatedProducts = productos.some(p => p.producto_id === item.producto_id)
+                    ? productos.map(p => p.producto_id === item.producto_id ? restoredProduct : p)
+                    : [...productos, restoredProduct];
+                setProductos(updatedProducts);
+            }
+        }
+
+        // Restaurar servicio si fue eliminado
+        if (item.itemType === "servicio") {
+            const originalService = services.find(s => s.servicio_id === item.servicio_id);
+            if (originalService && !servicios.some(s => s.servicio_id === item.servicio_id)) {
+                setServicios([...servicios, originalService]);
+            }
+        }
+    };
+
     const handleSell = async (cartItems, client, paymentmethod, total) => {
         if (!client || !paymentmethod || cartItems.length === 0 || total <= 0) {
             alert("Por favor, complete todos los campos.");
@@ -756,6 +789,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                                 clients={clientes}
                                 increaseQuantity={increaseQuantity}
                                 decreaseQuantity={decreaseQuantity}
+                                removeItem={removeFromCart}
                                 isPurchase={false}
                                 handleSubmit={handleSell}
                             />
