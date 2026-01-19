@@ -30,7 +30,7 @@
   "bugs": {
     "url": "https://github.com/creativetimofficial/ct-paper-dashboard-pro-react/issues"
   },
-  "homepage": ".",
+  "homepage": "/",
   "dependencies": {
     "ajv": "6.12.6",
     "ajv-keywords": "3.5.2",
