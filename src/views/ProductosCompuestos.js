@@ -21,6 +21,7 @@ import ReactTable from "components/ReactTable/ReactTable.js";
 import { useTheme } from "../context/ThemeContext";
 import SweetAlert from "react-bootstrap-sweetalert";
 import axiosInstance from "../api/axiosConfig";
+import axios from "axios";
 
 import {
   crearProductoCompuesto,
@@ -53,15 +54,6 @@ function ProductosCompuestos() {
 
   const FILES_API = import.meta.env?.VITE_SERVER_FILES || process.env.REACT_APP_SERVER_FILES;
 
-  // Helper para obtener la URL correcta de la imagen
-  const getImageUrl = (foto) => {
-    if (!foto) return null;
-    // Si ya es una URL completa (Cloudinary), usarla directamente
-    if (foto.startsWith('http')) return foto;
-    // Si es un archivo local, usar FILES_API
-    return `${FILES_API}/${foto}`;
-  };
-
   // Cargar productos compuestos
   const fetchProductosCompuestos = async () => {
     try {
@@ -75,6 +67,7 @@ function ProductosCompuestos() {
         descripcion: item.descripcion || "",
         precio_venta: item.precio_venta,
         costo_estimado: item.costo_estimado,
+        utilidad: Number(item.precio_venta || 0) - Number(item.costo_estimado || 0),
         componentes: item.componentes,
         actions: (
           <div className="actions-right" style={{ display: "flex", justifyContent: "center" }}>
@@ -180,7 +173,7 @@ function ProductosCompuestos() {
         confirmBtnBsStyle="info"
       >
         <div style={{ textAlign: "left" }}>
-          <p><strong>Descripción:</strong> {item.descripcion}</p>
+          <p><strong>DescripciÃ³n:</strong> {item.descripcion}</p>
           <p><strong>Precio de Venta:</strong> Q{Number(item.precio_venta).toFixed(2)}</p>
           <p><strong>Costo Estimado:</strong> Q{Number(item.costo_estimado).toFixed(2)}</p>
           <p><strong>Componentes:</strong></p>
@@ -198,7 +191,7 @@ function ProductosCompuestos() {
 
   const agregarComponente = () => {
     if (!componenteActual.producto_id || !componenteActual.cantidad) {
-      showAlert("warning", "Atención", "Debe seleccionar un producto y especificar la cantidad");
+      showAlert("warning", "AtenciÃ³n", "Debe seleccionar un producto y especificar la cantidad");
       return;
     }
 
@@ -232,12 +225,12 @@ function ProductosCompuestos() {
     e.preventDefault();
 
     if (!nuevoCompuesto.nombre || !nuevoCompuesto.precio_venta) {
-      showAlert("warning", "Atención", "Complete todos los campos requeridos");
+      showAlert("warning", "AtenciÃ³n", "Complete todos los campos requeridos");
       return;
     }
 
     if (!nuevoCompuesto.componentes.length) {
-      showAlert("warning", "Atención", "Debe agregar al menos un componente");
+      showAlert("warning", "AtenciÃ³n", "Debe agregar al menos un componente");
       return;
     }
 
@@ -259,7 +252,7 @@ function ProductosCompuestos() {
         ? await actualizarProductoCompuesto(data)
         : await crearProductoCompuesto(data);
 
-      showAlert("success", "Éxito", response.message || "Operación exitosa");
+      showAlert("success", "Ã‰xito", response.message || "OperaciÃ³n exitosa");
       setIsModalOpen(false);
       fetchProductosCompuestos();
     } catch (error) {
@@ -275,16 +268,16 @@ function ProductosCompuestos() {
       <SweetAlert
         warning
         style={{ display: "block", marginTop: "-100px" }}
-        title="¿Está seguro?"
+        title="Â¿EstÃ¡ seguro?"
         onConfirm={() => confirmarEliminar(id)}
         onCancel={() => setAlert(null)}
         confirmBtnBsStyle="info"
         cancelBtnBsStyle="danger"
-        confirmBtnText="Sí, eliminar"
+        confirmBtnText="SÃ­, eliminar"
         cancelBtnText="Cancelar"
         showCancel
       >
-        Esta acción no se puede deshacer
+        Esta acciÃ³n no se puede deshacer
       </SweetAlert>
     );
   };
@@ -343,7 +336,7 @@ function ProductosCompuestos() {
                         >
                           {value ? (
                             <img
-                              src={getImageUrl(value)}
+                              src={`${FILES_API}/${value}`}
                               alt="Producto"
                               style={{
                                 width: "70px",
@@ -361,7 +354,7 @@ function ProductosCompuestos() {
                       filterable: false,
                     },
                     { Header: "Nombre", accessor: "nombre" },
-                    { Header: "Descripción", accessor: "descripcion" },
+                    { Header: "DescripciÃ³n", accessor: "descripcion" },
                     {
                       Header: "Precio Venta",
                       accessor: "precio_venta",
@@ -371,6 +364,18 @@ function ProductosCompuestos() {
                       Header: "Costo Estimado",
                       accessor: "costo_estimado",
                       Cell: ({ value }) => `Q${Number(value).toFixed(2)}`,
+                    },
+                    {
+                      Header: "Utilidad",
+                      accessor: "utilidad",
+                      Cell: ({ value }) => (
+                        <span style={{
+                          color: value >= 0 ? "#2ecc71" : "#e74c3c",
+                          fontWeight: "bold"
+                        }}>
+                          Q{Number(value).toFixed(2)}
+                        </span>
+                      ),
                     },
                     {
                       Header: () => (
@@ -439,7 +444,7 @@ function ProductosCompuestos() {
               </Row>
 
               <FormGroup>
-                <Label>Descripción</Label>
+                <Label>DescripciÃ³n</Label>
                 <Input
                   type="textarea"
                   value={nuevoCompuesto.descripcion}
@@ -469,7 +474,7 @@ function ProductosCompuestos() {
                     src={
                       nuevoCompuesto.foto
                         ? URL.createObjectURL(nuevoCompuesto.foto)
-                        : getImageUrl(nuevoCompuesto.foto_original)
+                        : `${FILES_API}/${nuevoCompuesto.foto_original}`
                     }
                     alt="Preview"
                     style={{
@@ -532,7 +537,7 @@ function ProductosCompuestos() {
                       <th>Producto</th>
                       <th>Cantidad</th>
                       <th>Stock Disponible</th>
-                      <th>Acción</th>
+                      <th>AcciÃ³n</th>
                     </tr>
                   </thead>
                   <tbody>
