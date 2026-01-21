@@ -34,7 +34,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         });
 
 
-        // Filtrar por bÃºsqueda
+        // Filtrar por búsqueda
         if (newFilters.search !== "") {
             const search = newFilters.search.toLowerCase();
             filteredProducts = filteredProducts.filter((producto) => {
@@ -94,7 +94,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         newCartItems.push({
             ...item,
             cantidad: 1,
-            costo: item.costo || 0  // Usamos el COSTO del producto, no el precio
+            costo: item.costo || 0  // Usamos COSTO, no precio
         });
 
         setCartItems(newCartItems);
@@ -103,10 +103,8 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         setProductos(newProducts);
     };
 
-
     // Manejar el cambio de la cantidad
     const handleQuantityChange = (producto, cantidad) => {
-        // Actualizar la cantidad del producto en el carrito
         const newCartItems = cartItems.map((item) => {
             if (item.producto_id === producto.producto_id) {
                 return { ...item, cantidad };
@@ -122,7 +120,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         const newCartItems = cartItems.filter((item) => item.producto_id !== producto.producto_id);
         setCartItems(newCartItems);
 
-        // Restaurar el producto a la lista
         const newProducts = [...productos, producto];
         setProductos(newProducts);
     };
@@ -143,7 +140,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             detalles: cartItems.map((item) => ({
                 producto_id: item.producto_id,
                 cantidad: item.cantidad,
-                precio_unitario: item.costo  // Usamos el COSTO, no el precio
+                precio_unitario: item.costo  // Enviamos COSTO como precio_unitario
             }))
         }
 
