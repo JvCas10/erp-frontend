@@ -58,9 +58,10 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         updatedStockProducts = updatedStockProducts.filter(producto => producto.stock > 0);
 
         let filteredProducts = [...updatedStockProducts];
-        let filteredServices = [...servicios];
+        let filteredServices = [...services];
         let filteredCompuestos = [...productosCompuestos];
 
+        // Filtrar por búsqueda
         if (newFilters.search !== "") {
             const search = newFilters.search.toLowerCase();
             filteredProducts = filteredProducts.filter((producto) => {
@@ -68,7 +69,8 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                     producto.nombre.toLowerCase().includes(search) ||
                     producto.descripcion?.toLowerCase().includes(search) ||
                     producto.categoria?.toLowerCase().includes(search) ||
-                    producto.segmento?.toLowerCase().includes(search)
+                    producto.segmento?.toLowerCase().includes(search) ||
+                    producto.color?.toLowerCase().includes(search)
                 );
             });
             filteredServices = filteredServices.filter((servicio) => {
@@ -85,6 +87,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
+        // Filtrar por rango de precios
         if (newFilters.priceRange.min >= 0 && newFilters.priceRange.max >= 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
@@ -97,31 +100,36 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
+        // Filtrar por rango de stock
         if (newFilters.stockRange.min >= 0 && newFilters.stockRange.max >= 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
             });
         }
 
-        if (newFilters.selectedColors.length > 0) {
+        // Filtrar por colores
+        if (newFilters.selectedColors && newFilters.selectedColors.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedColors.includes(producto.color);
             });
         }
 
-        if (newFilters.selectedCategories.length > 0) {
+        // Filtrar por categorías
+        if (newFilters.selectedCategories && newFilters.selectedCategories.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedCategories.includes(producto.categoria);
             });
         }
 
-        if (newFilters.selectedSegments.length > 0) {
+        // Filtrar por segmentos
+        if (newFilters.selectedSegments && newFilters.selectedSegments.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedSegments.includes(producto.segmento);
             });
         }
 
-        if (newFilters.selectedProducts.length > 0) {
+        // Filtrar por nombre de producto
+        if (newFilters.selectedProducts && newFilters.selectedProducts.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedProducts.includes(producto.nombre);
             });
@@ -699,10 +707,9 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                             <Filters
                                 showSearchBar={true}
                                 showPriceRange={true}
-                                showProductName={true}
+                                showStockRange={true}
                                 showColorOptions={true}
                                 showCategories={true}
-                                showEmployeeNames={true}
                                 showSegments={true}
                                 onFilterChange={handleFilter}
                             />
