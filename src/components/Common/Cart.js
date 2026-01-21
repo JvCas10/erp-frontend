@@ -3,11 +3,15 @@ import CartItem from "./CartItem";
 import CartPurchaseItem from "./CartPurchaseItem";
 import { Button } from "reactstrap";
 
-const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, removeItem, isPurchase, clients, providers, handlePriceChange, handleQuantityChange, handleRemoveCart, handleSubmit }) => {
+const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, removeItem, isPurchase, clients, providers, handleQuantityChange, handleRemoveCart, handleSubmit }) => {
   const [selectedClientOrProvider, setSelectedClientOrProvider] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
 
-  const totalPrice = cartItems.reduce((acc, product) => acc + (isPurchase ? product.precio : product.precio) * product.cantidad, 0);
+  // Para compras usar COSTO, para ventas usar PRECIO
+  const totalPrice = cartItems.reduce((acc, product) => {
+    const unitPrice = isPurchase ? Number(product.costo || 0) : Number(product.precio || 0);
+    return acc + unitPrice * product.cantidad;
+  }, 0);
 
   const isCheckoutEnabled = cartItems.length > 0 && selectedClientOrProvider && (!isPurchase ? paymentMethod : true) && totalPrice > 0;
 
@@ -167,7 +171,6 @@ const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, removeItem, isPur
                   <CartPurchaseItem
                     key={cartItem.producto_id}
                     product={cartItem}
-                    handlePriceChange={handlePriceChange}
                     handleQuantityChange={handleQuantityChange}
                     removeItem={handleRemoveCart}
                   />
