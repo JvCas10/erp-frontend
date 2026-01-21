@@ -142,33 +142,6 @@ function Sidebar(props) {
           <a href="#" className="simple-text logo-normal">
             {theme.empresaNombre || "CreatiBox"}
           </a>
-          {props.handleMiniClick && (
-            <button
-              className="btn-icon btn-round sidebar-toggle-btn"
-              onClick={props.handleMiniClick}
-              title="Minimizar/Maximizar Sidebar"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                padding: '8px',
-                marginLeft: '10px',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                width: '30px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background-color 0.3s ease',
-                color: '#ffffff'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            >
-              <i className="nc-icon nc-minimal-left visible-on-sidebar-regular" />
-              <i className="nc-icon nc-minimal-right visible-on-sidebar-mini" />
-            </button>
-          )}
         </div>
       </div>
 
