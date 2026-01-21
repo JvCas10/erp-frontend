@@ -2,23 +2,28 @@ import React from "react";
 import "../../assets/styles/CartPurchaseItem.css";
 import regaloImg from "../../assets/regalo.png"; // Imagen de respaldo
 
-const CartPurchaseItem = ({ product, handleQuantityChange, removeItem }) => {
+const CartPurchaseItem = ({ product, handlePriceChange, handleQuantityChange, removeItem }) => {
   
   const FILES_API = import.meta.env?.VITE_SERVER_FILES || process.env.REACT_APP_SERVER_FILES;
+
+  console.log("CartPurchaseItem", product);
+  console.log("CartPurchaseItem FILES_API:", FILES_API);
 
   // Verificar si la imagen existe, si no, usar imagen de respaldo
   const productImage = () => {
     if (product.foto && product.foto !== "Foto no disponible") {
+      // Si ya es URL completa (Cloudinary), usarla directamente
+      if (product.foto.startsWith('http')) {
+        return product.foto;
+      }
       const imageUrl = `${FILES_API}${product.foto}`;
-      return imageUrl;
+      console.log("CartPurchaseItem - Usando imagen del servidor:", imageUrl);
+      return imageUrl; // URL del servidor de archivos
     } else {
-      return regaloImg;
+      console.log("CartPurchaseItem - Usando imagen por defecto, foto:", product.foto);
+      return regaloImg; // Imagen por defecto
     }
   };
-
-  const costo = Number(product.costo || 0);
-  const cantidad = Number(product.cantidad || 1);
-  const total = costo * cantidad;
 
   return (
     <div className="cart-item">
@@ -39,31 +44,30 @@ const CartPurchaseItem = ({ product, handleQuantityChange, removeItem }) => {
         <input
           type="number"
           className="cart-item-input"
-          value={cantidad}
+          value={product.cantidad}
           onChange={(e) => handleQuantityChange(product, parseInt(e.target.value, 10) || 1)}
           min="1"
         />
       </div>
 
-      {/* Costo - NO EDITABLE */}
+      {/* Campo para precio de compra */}
       <div className="cart-item-input-group">
         <label className="cart-item-label">Costo</label>
-        <span className="cart-item-input" style={{ 
-          backgroundColor: '#f0f0f0', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          cursor: 'not-allowed'
-        }}>
-          Q{costo.toFixed(2)}
-        </span>
+        <input
+          type="number"
+          className="cart-item-input"
+          value={product.precio}
+          onChange={(e) => handlePriceChange(product, parseFloat(e.target.value) || 0)}
+          min="0"
+          step="0.01"
+        />
       </div>
 
       {/* Símbolo "=" */}
       <div className="cart-item-equal">=</div>
 
-      {/* Precio Total (cantidad * costo) */}
-      <div className="cart-item-price-total">Q{total.toFixed(2)}</div>
+      {/* Precio Total (cantidad * precio de compra) */}
+      <div className="cart-item-price-total">Q{(product.precio * product.cantidad).toFixed(2)}</div>
 
       {/* Botón de eliminar */}
       <button className="cart-item-delete-btn" onClick={() => removeItem(product)}>

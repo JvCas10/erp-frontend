@@ -471,8 +471,8 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                                     {productos.map((product) => (
                                         <ProductCard
                                             key={product.producto_id}
-                                            product={product}
-                                            onAddToCart={addToCart}
+                                            product={{...product, precio: product.costo}}
+                                            onAddToCart={(prod, type) => addToCart({...prod, precio: product.precio, costo: product.costo}, type)}
                                         />
                                     ))}
                                 </div>
