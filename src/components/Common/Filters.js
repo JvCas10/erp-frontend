@@ -23,8 +23,8 @@ const Filters = ({
     const [search, setSearch] = useState('');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const [selectedStatus, setSelectedStatus] = useState([]);
-    const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
-    const [stockRange, setStockRange] = useState({ min: 0, max: 1000 });
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 999999 });
+    const [stockRange, setStockRange] = useState({ min: 0, max: 999999 });
     const [selectedClients, setSelectedClients] = useState([]);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -290,9 +290,9 @@ const Filters = ({
                     <div style={styles.filter}>
                         <label style={styles.label}>Rango de Precios</label>
                         <div style={styles.rangeInputs}>
-                            <input type="number" min="0" max="10000" step="500" value={priceRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= priceRange.max) handlePriceRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
+                            <input type="number" min="0" value={priceRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= priceRange.max) handlePriceRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
                             <span>-</span>
-                            <input type="number" min="0" max="10000" step="500" value={priceRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= priceRange.min) handlePriceRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
+                            <input type="number" min="0" value={priceRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= priceRange.min) handlePriceRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
                         </div>
                         <span style={styles.rangeText}>De Q{priceRange.min} a Q{priceRange.max}</span>
                     </div>
@@ -302,9 +302,9 @@ const Filters = ({
                     <div style={styles.filter}>
                         <label style={styles.label}>Rango de Stock</label>
                         <div style={styles.rangeInputs}>
-                            <input type="number" min="0" max="100000" step="50" value={stockRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= stockRange.max) handleStockRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
+                            <input type="number" min="0" value={stockRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= stockRange.max) handleStockRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
                             <span>-</span>
-                            <input type="number" min="0" max="100000" step="50" value={stockRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= stockRange.min) handleStockRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
+                            <input type="number" min="0" value={stockRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= stockRange.min) handleStockRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
                         </div>
                         <span style={styles.rangeText}>De {stockRange.min} a {stockRange.max} unidades</span>
                     </div>

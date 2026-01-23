@@ -11,19 +11,15 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
 
     if (!isOpen) return null;
 
-    // Estados para productos/servicios visibles (filtrados)
-    const [productosVisibles, setProductosVisibles] = useState([]);
-    const [serviciosVisibles, setServiciosVisibles] = useState([]);
     const [productosCompuestos, setProductosCompuestos] = useState([]);
-    const [productosCompuestosVisibles, setProductosCompuestosVisibles] = useState([]);
-    
     const [cartItems, setCartItems] = useState([]);
     const [activeTab, setActiveTab] = useState('productos');
 
+    // Filtros activos - inicializados SIN restricciones
     const [filters, setFilters] = useState({
         search: "",
-        priceRange: { min: 0, max: 10000 },
-        stockRange: { min: 0, max: 1000 },
+        priceRange: { min: 0, max: 999999 },
+        stockRange: { min: 0, max: 999999 },
         selectedColors: [],
         selectedCategories: [],
         selectedSegments: [],
@@ -41,13 +37,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             const response = await axiosInstance.get("/productos-compuestos");
             const data = response.data.productos || [];
             setProductosCompuestos(data);
-            setProductosCompuestosVisibles(data);
         } catch (error) {
             console.error("Error al cargar productos compuestos:", error);
         }
     };
 
-    // Función para aplicar filtros
+    // Función para aplicar filtros - siempre usa los datos ORIGINALES
     const aplicarFiltros = useCallback((currentFilters, productosOriginales, serviciosOriginales, compuestosOriginales, itemsEnCarrito) => {
         // Calcular stock actualizado para productos en carrito
         let productosConStock = productosOriginales.map((producto) => {
@@ -91,37 +86,40 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
-        // Filtrar por rango de precios
-        if (currentFilters.priceRange && 
-            typeof currentFilters.priceRange.min === 'number' && 
-            typeof currentFilters.priceRange.max === 'number' &&
-            currentFilters.priceRange.max >= currentFilters.priceRange.min) {
-            filteredProducts = filteredProducts.filter((producto) => {
-                const precio = Number(producto.precio) || 0;
-                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
-            });
-            filteredServices = filteredServices.filter((servicio) => {
-                const precio = Number(servicio.precio) || 0;
-                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
-            });
-            filteredCompuestos = filteredCompuestos.filter((compuesto) => {
-                const precio = Number(compuesto.precio_venta) || 0;
-                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
-            });
+        // Filtrar por rango de precios - SOLO si el usuario ha modificado los valores
+        if (currentFilters.priceRange) {
+            const min = currentFilters.priceRange.min;
+            const max = currentFilters.priceRange.max;
+            // Solo aplicar si no son los valores por defecto o si el usuario los cambió
+            if (min > 0 || max < 999999) {
+                filteredProducts = filteredProducts.filter((producto) => {
+                    const precio = Number(producto.precio) || 0;
+                    return precio >= min && precio <= max;
+                });
+                filteredServices = filteredServices.filter((servicio) => {
+                    const precio = Number(servicio.precio) || 0;
+                    return precio >= min && precio <= max;
+                });
+                filteredCompuestos = filteredCompuestos.filter((compuesto) => {
+                    const precio = Number(compuesto.precio_venta) || 0;
+                    return precio >= min && precio <= max;
+                });
+            }
         }
 
-        // Filtrar por rango de stock (solo productos)
-        if (currentFilters.stockRange && 
-            typeof currentFilters.stockRange.min === 'number' && 
-            typeof currentFilters.stockRange.max === 'number' &&
-            currentFilters.stockRange.max >= currentFilters.stockRange.min) {
-            filteredProducts = filteredProducts.filter((producto) => {
-                const stock = Number(producto.stock) || 0;
-                return stock >= currentFilters.stockRange.min && stock <= currentFilters.stockRange.max;
-            });
+        // Filtrar por rango de stock - SOLO si el usuario ha modificado los valores
+        if (currentFilters.stockRange) {
+            const min = currentFilters.stockRange.min;
+            const max = currentFilters.stockRange.max;
+            if (min > 0 || max < 999999) {
+                filteredProducts = filteredProducts.filter((producto) => {
+                    const stock = Number(producto.stock) || 0;
+                    return stock >= min && stock <= max;
+                });
+            }
         }
 
-        // Filtrar por colores (solo productos)
+        // Filtrar por colores (solo si hay seleccionados)
         if (currentFilters.selectedColors && currentFilters.selectedColors.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 if (!producto.color) return false;
@@ -131,7 +129,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
-        // Filtrar por categorías (solo productos)
+        // Filtrar por categorías (solo si hay seleccionadas)
         if (currentFilters.selectedCategories && currentFilters.selectedCategories.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 if (!producto.categoria) return false;
@@ -141,7 +139,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
-        // Filtrar por segmentos (solo productos)
+        // Filtrar por segmentos (solo si hay seleccionados)
         if (currentFilters.selectedSegments && currentFilters.selectedSegments.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 if (!producto.segmento) return false;
@@ -151,7 +149,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             });
         }
 
-        // Filtrar por nombre de producto
+        // Filtrar por nombre de producto (solo si hay seleccionados)
         if (currentFilters.selectedProducts && currentFilters.selectedProducts.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 if (!producto.nombre) return false;
@@ -164,33 +162,14 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         return { filteredProducts, filteredServices, filteredCompuestos };
     }, []);
 
-    // Inicializar productos visibles
-    useEffect(() => {
-        if (isOpen && products && services) {
-            const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
-                filters, products, services, productosCompuestos, cartItems
-            );
-            setProductosVisibles(filteredProducts);
-            setServiciosVisibles(filteredServices);
-            setProductosCompuestosVisibles(filteredCompuestos);
-        }
-    }, [isOpen, products, services, productosCompuestos]);
+    // Obtener productos/servicios filtrados
+    const { filteredProducts: productosVisibles, filteredServices: serviciosVisibles, filteredCompuestos: productosCompuestosVisibles } = 
+        aplicarFiltros(filters, products || [], services || [], productosCompuestos, cartItems);
 
     const handleFilter = (updatedFilters) => {
         const newFilters = { ...filters, ...updatedFilters };
         setFilters(newFilters);
-
-        const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
-            newFilters, products, services, productosCompuestos, cartItems
-        );
-        
-        setProductosVisibles(filteredProducts);
-        setServiciosVisibles(filteredServices);
-        setProductosCompuestosVisibles(filteredCompuestos);
-
         console.log('Filtros aplicados:', newFilters);
-        console.log('Productos filtrados:', filteredProducts.length);
-        console.log('Servicios filtrados:', filteredServices.length);
     };
 
     const verificarStockCompuesto = (compuesto, cantidadSolicitada = 1) => {
@@ -270,15 +249,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
 
         setCartItems(newCartItems);
-
-        if (itemType === "producto") {
-            const updatedProducts = productosVisibles.map((producto) =>
-                producto.producto_id === item.producto_id
-                    ? { ...producto, stock: producto.stock - 1 }
-                    : producto
-            );
-            setProductosVisibles(updatedProducts.filter((producto) => producto.stock > 0));
-        }
     };
 
     const increaseQuantity = (item) => {
@@ -314,15 +284,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
 
         setCartItems(newCartItems);
-
-        if (item.itemType === "producto") {
-            const updatedProducts = productosVisibles.map((producto) =>
-                producto.producto_id === item.producto_id
-                    ? { ...producto, stock: producto.stock - 1 }
-                    : producto
-            );
-            setProductosVisibles(updatedProducts.filter((producto) => producto.stock > 0));
-        }
     };
 
     const decreaseQuantity = (item) => {
@@ -344,16 +305,10 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             if (item.itemType === "producto") {
                 existingItem.stock++;
             }
+            setCartItems([...newCartItems]);
         } else {
-            newCartItems.splice(newCartItems.indexOf(existingItem), 1);
-        }
-
-        setCartItems(newCartItems);
-
-        if (item.itemType === "producto") {
-            // Re-aplicar filtros para restaurar el producto
-            const { filteredProducts } = aplicarFiltros(filters, products, services, productosCompuestos, newCartItems);
-            setProductosVisibles(filteredProducts);
+            const filtered = newCartItems.filter(ci => ci !== existingItem);
+            setCartItems(filtered);
         }
     };
 
@@ -367,14 +322,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         );
 
         setCartItems(newCartItems);
-
-        // Re-aplicar filtros para restaurar productos/servicios
-        const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
-            filters, products, services, productosCompuestos, newCartItems
-        );
-        setProductosVisibles(filteredProducts);
-        setServiciosVisibles(filteredServices);
-        setProductosCompuestosVisibles(filteredCompuestos);
     };
 
     const handleSell = async (cartItems, client, paymentmethod, total) => {
@@ -674,7 +621,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             
             <div className="sales-modal-overlay">
                 <div className="sales-modal">
-                    {/* Header */}
                     <div className="sales-header">
                         <h2 className="sales-header-title">
                             <i className="fa fa-cash-register" />
@@ -685,7 +631,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         </button>
                     </div>
 
-                    {/* Tabs */}
                     <div className="sales-tabs">
                         <button 
                             className={`sales-tab ${activeTab === 'filtros' ? 'active' : ''}`}
@@ -726,9 +671,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         </button>
                     </div>
 
-                    {/* Content */}
                     <div className="sales-content">
-                        {/* Panel Filtros */}
                         <div className={`sales-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
                                 <i className="fa fa-filter" />
@@ -746,7 +689,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                             />
                         </div>
 
-                        {/* Panel Productos */}
                         <div className={`sales-panel ${activeTab === 'productos' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
                                 <i className="fa fa-box" />
@@ -795,7 +737,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                             )}
                         </div>
 
-                        {/* Panel Servicios */}
                         <div className={`sales-panel ${activeTab === 'servicios' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
                                 <i className="fa fa-concierge-bell" />
@@ -820,7 +761,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                             )}
                         </div>
 
-                        {/* Panel Carrito */}
                         <div className={`sales-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
                             <Cart
                                 cartItems={cartItems}

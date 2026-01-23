@@ -9,22 +9,21 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
     
     if (!isOpen) return null;
 
-    // productos filtrados para mostrar
-    const [productosVisibles, setProductosVisibles] = useState([]);
     const [cartItems, setCartItems] = useState([]);
     const [activeTab, setActiveTab] = useState('productos');
 
+    // Filtros activos - inicializados SIN restricciones
     const [filters, setFilters] = useState({
         search: "",
-        priceRange: { min: 0, max: 10000 },
-        stockRange: { min: 0, max: 1000 },
+        priceRange: { min: 0, max: 999999 },
+        stockRange: { min: 0, max: 999999 },
         selectedColors: [],
         selectedCategories: [],
         selectedSegments: [],
         selectedProducts: []
     });
 
-    // Función para aplicar todos los filtros
+    // Función para aplicar filtros - siempre usa los datos ORIGINALES
     const aplicarFiltros = useCallback((currentFilters, productosOriginales, itemsEnCarrito) => {
         // Empezar con todos los productos originales, excluyendo los que están en el carrito
         let resultado = productosOriginales.filter((producto) => {
@@ -48,33 +47,34 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             });
         }
 
-        // Filtrar por rango de precios (solo si los valores son válidos)
-        if (currentFilters.priceRange && 
-            typeof currentFilters.priceRange.min === 'number' && 
-            typeof currentFilters.priceRange.max === 'number' &&
-            currentFilters.priceRange.max >= currentFilters.priceRange.min) {
-            resultado = resultado.filter((producto) => {
-                const precio = Number(producto.precio) || 0;
-                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
-            });
+        // Filtrar por rango de precios - SOLO si el usuario ha modificado los valores
+        if (currentFilters.priceRange) {
+            const min = currentFilters.priceRange.min;
+            const max = currentFilters.priceRange.max;
+            if (min > 0 || max < 999999) {
+                resultado = resultado.filter((producto) => {
+                    const precio = Number(producto.precio) || 0;
+                    return precio >= min && precio <= max;
+                });
+            }
         }
 
-        // Filtrar por rango de stock (solo si los valores son válidos)
-        if (currentFilters.stockRange && 
-            typeof currentFilters.stockRange.min === 'number' && 
-            typeof currentFilters.stockRange.max === 'number' &&
-            currentFilters.stockRange.max >= currentFilters.stockRange.min) {
-            resultado = resultado.filter((producto) => {
-                const stock = Number(producto.stock) || 0;
-                return stock >= currentFilters.stockRange.min && stock <= currentFilters.stockRange.max;
-            });
+        // Filtrar por rango de stock - SOLO si el usuario ha modificado los valores
+        if (currentFilters.stockRange) {
+            const min = currentFilters.stockRange.min;
+            const max = currentFilters.stockRange.max;
+            if (min > 0 || max < 999999) {
+                resultado = resultado.filter((producto) => {
+                    const stock = Number(producto.stock) || 0;
+                    return stock >= min && stock <= max;
+                });
+            }
         }
 
         // Filtrar por colores (solo si hay colores seleccionados)
         if (currentFilters.selectedColors && currentFilters.selectedColors.length > 0) {
             resultado = resultado.filter((producto) => {
                 if (!producto.color) return false;
-                // Comparación case-insensitive y trim
                 return currentFilters.selectedColors.some(
                     color => color.toLowerCase().trim() === producto.color.toLowerCase().trim()
                 );
@@ -85,7 +85,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         if (currentFilters.selectedCategories && currentFilters.selectedCategories.length > 0) {
             resultado = resultado.filter((producto) => {
                 if (!producto.categoria) return false;
-                // Comparación case-insensitive y trim
                 return currentFilters.selectedCategories.some(
                     cat => cat.toLowerCase().trim() === producto.categoria.toLowerCase().trim()
                 );
@@ -96,7 +95,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         if (currentFilters.selectedSegments && currentFilters.selectedSegments.length > 0) {
             resultado = resultado.filter((producto) => {
                 if (!producto.segmento) return false;
-                // Comparación case-insensitive y trim
                 return currentFilters.selectedSegments.some(
                     seg => seg.toLowerCase().trim() === producto.segmento.toLowerCase().trim()
                 );
@@ -107,7 +105,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         if (currentFilters.selectedProducts && currentFilters.selectedProducts.length > 0) {
             resultado = resultado.filter((producto) => {
                 if (!producto.nombre) return false;
-                // Comparación case-insensitive y trim
                 return currentFilters.selectedProducts.some(
                     name => name.toLowerCase().trim() === producto.nombre.toLowerCase().trim()
                 );
@@ -117,28 +114,14 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         return resultado;
     }, []);
 
-    // Inicializar productos visibles cuando se abre el modal
-    useEffect(() => {
-        if (isOpen && products) {
-            const filtrados = aplicarFiltros(filters, products, cartItems);
-            setProductosVisibles(filtrados);
-        }
-    }, [isOpen, products]);
+    // Obtener productos filtrados - se recalcula automáticamente cuando cambian filters, products o cartItems
+    const productosVisibles = aplicarFiltros(filters, products || [], cartItems);
 
     // Handler para cambios de filtro
     const handleFilter = (updatedFilters) => {
-        // Merge de filtros nuevos con los existentes
         const newFilters = { ...filters, ...updatedFilters };
         setFilters(newFilters);
-
-        // Aplicar filtros usando los productos ORIGINALES (props)
-        const filtrados = aplicarFiltros(newFilters, products, cartItems);
-        setProductosVisibles(filtrados);
-        
-        // Debug: mostrar en consola qué está pasando
         console.log('Filtros aplicados:', newFilters);
-        console.log('Productos originales:', products.length);
-        console.log('Productos filtrados:', filtrados.length);
     };
 
     const addToCart = (item, itemType) => {
@@ -154,12 +137,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
         });
 
         setCartItems(newCartItems);
-
-        // Quitar el producto de la lista visible
-        const newProductosVisibles = productosVisibles.filter(
-            (product) => product.producto_id !== item.producto_id
-        );
-        setProductosVisibles(newProductosVisibles);
     };
 
     const handlePriceChange = (producto, precio) => {
@@ -187,10 +164,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
     const removeFromCart = (producto) => {
         const newCartItems = cartItems.filter((item) => item.producto_id !== producto.producto_id);
         setCartItems(newCartItems);
-
-        // Re-aplicar filtros para que el producto vuelva a aparecer si cumple los criterios
-        const filtrados = aplicarFiltros(filters, products, newCartItems);
-        setProductosVisibles(filtrados);
     };
 
     const handlePurchase = async (cartItems, provider, total) => {
@@ -451,7 +424,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             
             <div className="compra-modal-overlay">
                 <div className="compra-modal">
-                    {/* Header */}
                     <div className="compra-header">
                         <h2 className="compra-header-title">
                             <i className="fa fa-truck" />
@@ -462,7 +434,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                         </button>
                     </div>
 
-                    {/* Tabs */}
                     <div className="compra-tabs">
                         <button 
                             className={`compra-tab ${activeTab === 'filtros' ? 'active' : ''}`}
@@ -493,9 +464,7 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                         </button>
                     </div>
 
-                    {/* Content */}
                     <div className="compra-content">
-                        {/* Panel Filtros */}
                         <div className={`compra-panel ${activeTab === 'filtros' ? 'active' : ''}`}>
                             <h2 className="compra-section-title">
                                 <i className="fa fa-filter" />
@@ -513,7 +482,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                             />
                         </div>
 
-                        {/* Panel Productos */}
                         <div className={`compra-panel ${activeTab === 'productos' ? 'active' : ''}`}>
                             <h2 className="compra-section-title">
                                 <i className="fa fa-box" />
@@ -538,7 +506,6 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                             )}
                         </div>
 
-                        {/* Panel Carrito */}
                         <div className={`compra-panel ${activeTab === 'carrito' ? 'active' : ''}`}>
                             <Cart
                                 cartItems={cartItems}
