@@ -75,6 +75,10 @@ export function RangeSliderFilter({ column: { filterValue = [], setFilter } }) {
    ESTILOS RESPONSIVE
 ========================= */
 const responsiveStyles = `
+  /* Mejor experiencia móvil:
+     - Mantener scroll horizontal (sin comprimir columnas)
+     - Botones y selects apilados para que quepan bien
+  */
   @media (max-width: 768px) {
     .rt-pagination-container {
       flex-direction: column !important;
@@ -92,18 +96,30 @@ const responsiveStyles = `
       width: 100% !important;
       margin-bottom: 10px;
     }
+
+    /* IMPORTANTE: NO forzar min-width:100% (eso aplasta la tabla).
+       Dejamos que la tabla mantenga su ancho mínimo y se use el scroll horizontal. */
     .ReactTable .rt-table {
-      min-width: 100% !important;
+      min-width: 800px !important;
+      width: max-content;
     }
+
     .ReactTable .rt-th,
     .ReactTable .rt-td {
       padding: 8px 5px !important;
       font-size: 12px !important;
+      white-space: nowrap;
     }
     .ReactTable .rt-input {
       font-size: 12px !important;
       padding: 4px !important;
     }
+  }
+
+  /* En pantallas grandes también ayuda a mantener columnas legibles */
+  .ReactTable .rt-th,
+  .ReactTable .rt-td {
+    white-space: nowrap;
   }
 `;
 
@@ -176,14 +192,14 @@ function Table({ columns, data }) {
       <div className="ReactTable -striped -highlight primary-pagination">
         {/* PAGINACIÓN SUPERIOR */}
         <div className="pagination-top">
-          <div 
+          <div
             className="-pagination rt-pagination-container"
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '10px 0'
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 0",
             }}
           >
             <div className="-previous rt-pagination-btn">
@@ -192,24 +208,24 @@ function Table({ columns, data }) {
                 onClick={previousPage}
                 disabled={!canPreviousPage}
                 className="-btn"
-                style={{ width: '100%', minWidth: '80px' }}
+                style={{ width: "100%", minWidth: "80px" }}
               >
                 Anterior
               </button>
             </div>
 
-            <div 
+            <div
               className="-center rt-pagination-selects"
               style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '10px',
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px",
                 flex: 1,
-                justifyContent: 'center',
-                padding: '0 10px'
+                justifyContent: "center",
+                padding: "0 10px",
               }}
             >
-              <div style={{ minWidth: '120px', flex: '1 1 120px', maxWidth: '200px' }}>
+              <div style={{ minWidth: "120px", flex: "1 1 120px", maxWidth: "200px" }}>
                 <Select
                   className="react-select primary"
                   classNamePrefix="react-select"
@@ -220,10 +236,10 @@ function Table({ columns, data }) {
                   }}
                   options={pageSelectOptions}
                   menuPortalTarget={document.body}
-                  styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                  styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
                 />
               </div>
-              <div style={{ minWidth: '120px', flex: '1 1 120px', maxWidth: '200px' }}>
+              <div style={{ minWidth: "120px", flex: "1 1 120px", maxWidth: "200px" }}>
                 <Select
                   className="react-select primary"
                   classNamePrefix="react-select"
@@ -234,7 +250,7 @@ function Table({ columns, data }) {
                   }}
                   options={rowsOptions}
                   menuPortalTarget={document.body}
-                  styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                  styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
                 />
               </div>
             </div>
@@ -245,7 +261,7 @@ function Table({ columns, data }) {
                 onClick={nextPage}
                 disabled={!canNextPage}
                 className="-btn"
-                style={{ width: '100%', minWidth: '80px' }}
+                style={{ width: "100%", minWidth: "80px" }}
               >
                 Siguiente
               </button>
@@ -254,11 +270,11 @@ function Table({ columns, data }) {
         </div>
 
         {/* TABLA CON SCROLL HORIZONTAL */}
-        <div style={{ overflowX: "auto", WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
           <table
             {...getTableProps()}
             className="rt-table"
-            style={{ minWidth: "800px", width: '100%' }}
+            style={{ minWidth: "800px", width: "max-content" }}
           >
             <thead className="rt-thead -header">
               {headerGroups.map((group) => (

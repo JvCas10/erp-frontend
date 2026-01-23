@@ -26,31 +26,70 @@ function Admin(props) {
 
   // ⭐ Aplicar CSS variables cuando cambie el tema
   useEffect(() => {
-    document.documentElement.style.setProperty('--primary-color', theme.primaryColor || '#3498db');
-    document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor || '#2ecc71');
-    document.documentElement.style.setProperty('--background-color', theme.backgroundColor || '#f5f5f5');
-    document.documentElement.style.setProperty('--text-color', theme.textColor || '#333333');
+    document.documentElement.style.setProperty("--primary-color", theme.primaryColor || "#3498db");
+    document.documentElement.style.setProperty("--secondary-color", theme.secondaryColor || "#2ecc71");
+    document.documentElement.style.setProperty("--background-color", theme.backgroundColor || "#f5f5f5");
+    document.documentElement.style.setProperty("--text-color", theme.textColor || "#333333");
   }, [theme]);
 
   React.useEffect(() => {
+    // PerfectScrollbar solo en Windows (como lo trae el template)
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
       document.documentElement.classList.remove("perfect-scrollbar-off");
+
       ps = new PerfectScrollbar(mainPanel.current);
-    }
-    return function cleanup() {
-      if (navigator.platform.indexOf("Win") > -1) {
+
+      // Forzar un update inicial por si el contenido ya viene renderizado
+      ps.update();
+
+      // Mantener actualizado el scrollbar cuando cambie el DOM (tablas, paginación, fetch, etc.)
+      let rafId = null;
+      const scheduleUpdate = () => {
+        if (!ps) return;
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          try {
+            ps.update();
+          } catch (e) {
+            // Evitar romper la app si el ref cambia durante navegación rápida
+          }
+        });
+      };
+
+      const observer = new MutationObserver(scheduleUpdate);
+      observer.observe(mainPanel.current, { childList: true, subtree: true });
+
+      window.addEventListener("resize", scheduleUpdate);
+
+      return function cleanup() {
+        window.removeEventListener("resize", scheduleUpdate);
+        observer.disconnect();
+        if (rafId) cancelAnimationFrame(rafId);
+
         ps.destroy();
         document.documentElement.className += " perfect-scrollbar-off";
         document.documentElement.classList.remove("perfect-scrollbar-on");
-      }
-    };
+      };
+    }
+
+    return undefined;
   }, []);
 
   React.useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
     mainPanel.current.scrollTop = 0;
+
+    // Recalcular el scroll al cambiar de ruta (evita espacio en blanco / scroll fantasma)
+    if (navigator.platform.indexOf("Win") > -1 && ps) {
+      // Dejar que el DOM termine de pintar antes del update
+      setTimeout(() => {
+        try {
+          ps.update();
+        } catch (e) {}
+      }, 0);
+    }
   }, [location]);
 
   const getRoutes = (routes) => {
