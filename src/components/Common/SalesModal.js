@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Filters from "./Filters";
 import ProductCard from "./ProductCard";
 import ServiceCard from "./ServiceCard";
@@ -11,10 +11,13 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
 
     if (!isOpen) return null;
 
-    const [productos, setProductos] = useState(products);
+    // Estados para productos/servicios visibles (filtrados)
+    const [productosVisibles, setProductosVisibles] = useState([]);
+    const [serviciosVisibles, setServiciosVisibles] = useState([]);
     const [productosCompuestos, setProductosCompuestos] = useState([]);
+    const [productosCompuestosVisibles, setProductosCompuestosVisibles] = useState([]);
+    
     const [cartItems, setCartItems] = useState([]);
-    const [servicios, setServicios] = useState(services);
     const [activeTab, setActiveTab] = useState('productos');
 
     const [filters, setFilters] = useState({
@@ -38,106 +41,156 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             const response = await axiosInstance.get("/productos-compuestos");
             const data = response.data.productos || [];
             setProductosCompuestos(data);
+            setProductosCompuestosVisibles(data);
         } catch (error) {
             console.error("Error al cargar productos compuestos:", error);
         }
     };
 
-    const handleFilter = (updatedFilters) => {
-        const newFilters = { ...filters, ...updatedFilters };
-        setFilters(newFilters);
-
-        let updatedStockProducts = products.map((producto) => {
-            const cartItem = cartItems.find((item) => item.producto_id === producto.producto_id && item.itemType === "producto");
+    // Función para aplicar filtros
+    const aplicarFiltros = useCallback((currentFilters, productosOriginales, serviciosOriginales, compuestosOriginales, itemsEnCarrito) => {
+        // Calcular stock actualizado para productos en carrito
+        let productosConStock = productosOriginales.map((producto) => {
+            const cartItem = itemsEnCarrito.find((item) => item.producto_id === producto.producto_id && item.itemType === "producto");
             if (cartItem) {
                 return { ...producto, stock: cartItem.stock };
             }
             return producto;
         });
 
-        updatedStockProducts = updatedStockProducts.filter(producto => producto.stock > 0);
+        // Solo mostrar productos con stock > 0
+        productosConStock = productosConStock.filter(producto => producto.stock > 0);
 
-        let filteredProducts = [...updatedStockProducts];
-        let filteredServices = [...services];
-        let filteredCompuestos = [...productosCompuestos];
+        let filteredProducts = [...productosConStock];
+        let filteredServices = [...serviciosOriginales];
+        let filteredCompuestos = [...compuestosOriginales];
 
         // Filtrar por búsqueda
-        if (newFilters.search && newFilters.search !== "") {
-            const search = newFilters.search.toLowerCase();
+        if (currentFilters.search && currentFilters.search.trim() !== "") {
+            const search = currentFilters.search.toLowerCase().trim();
             filteredProducts = filteredProducts.filter((producto) => {
                 return (
-                    producto.nombre.toLowerCase().includes(search) ||
-                    producto.descripcion?.toLowerCase().includes(search) ||
-                    producto.categoria?.toLowerCase().includes(search) ||
-                    producto.segmento?.toLowerCase().includes(search) ||
-                    producto.color?.toLowerCase().includes(search)
+                    (producto.nombre && producto.nombre.toLowerCase().includes(search)) ||
+                    (producto.descripcion && producto.descripcion?.toLowerCase().includes(search)) ||
+                    (producto.categoria && producto.categoria?.toLowerCase().includes(search)) ||
+                    (producto.segmento && producto.segmento?.toLowerCase().includes(search)) ||
+                    (producto.color && producto.color?.toLowerCase().includes(search))
                 );
             });
             filteredServices = filteredServices.filter((servicio) => {
                 return (
-                    servicio.nombre.toLowerCase().includes(search) ||
-                    servicio.descripcion?.toLowerCase().includes(search)
+                    (servicio.nombre && servicio.nombre.toLowerCase().includes(search)) ||
+                    (servicio.descripcion && servicio.descripcion?.toLowerCase().includes(search))
                 );
             });
             filteredCompuestos = filteredCompuestos.filter((compuesto) => {
                 return (
-                    compuesto.nombre.toLowerCase().includes(search) ||
-                    compuesto.descripcion?.toLowerCase().includes(search)
+                    (compuesto.nombre && compuesto.nombre.toLowerCase().includes(search)) ||
+                    (compuesto.descripcion && compuesto.descripcion?.toLowerCase().includes(search))
                 );
             });
         }
 
         // Filtrar por rango de precios
-        if (newFilters.priceRange && newFilters.priceRange.min >= 0 && newFilters.priceRange.max >= 0) {
+        if (currentFilters.priceRange && 
+            typeof currentFilters.priceRange.min === 'number' && 
+            typeof currentFilters.priceRange.max === 'number' &&
+            currentFilters.priceRange.max >= currentFilters.priceRange.min) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
+                const precio = Number(producto.precio) || 0;
+                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
             });
             filteredServices = filteredServices.filter((servicio) => {
-                return servicio.precio >= newFilters.priceRange.min && servicio.precio <= newFilters.priceRange.max;
+                const precio = Number(servicio.precio) || 0;
+                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
             });
             filteredCompuestos = filteredCompuestos.filter((compuesto) => {
-                return compuesto.precio_venta >= newFilters.priceRange.min && compuesto.precio_venta <= newFilters.priceRange.max;
+                const precio = Number(compuesto.precio_venta) || 0;
+                return precio >= currentFilters.priceRange.min && precio <= currentFilters.priceRange.max;
             });
         }
 
-        // Filtrar por rango de stock
-        if (newFilters.stockRange && newFilters.stockRange.min >= 0 && newFilters.stockRange.max >= 0) {
+        // Filtrar por rango de stock (solo productos)
+        if (currentFilters.stockRange && 
+            typeof currentFilters.stockRange.min === 'number' && 
+            typeof currentFilters.stockRange.max === 'number' &&
+            currentFilters.stockRange.max >= currentFilters.stockRange.min) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
+                const stock = Number(producto.stock) || 0;
+                return stock >= currentFilters.stockRange.min && stock <= currentFilters.stockRange.max;
             });
         }
 
-        // Filtrar por colores
-        if (newFilters.selectedColors && newFilters.selectedColors.length > 0) {
+        // Filtrar por colores (solo productos)
+        if (currentFilters.selectedColors && currentFilters.selectedColors.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return newFilters.selectedColors.includes(producto.color);
+                if (!producto.color) return false;
+                return currentFilters.selectedColors.some(
+                    color => color.toLowerCase().trim() === producto.color.toLowerCase().trim()
+                );
             });
         }
 
-        // Filtrar por categorías
-        if (newFilters.selectedCategories && newFilters.selectedCategories.length > 0) {
+        // Filtrar por categorías (solo productos)
+        if (currentFilters.selectedCategories && currentFilters.selectedCategories.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return newFilters.selectedCategories.includes(producto.categoria);
+                if (!producto.categoria) return false;
+                return currentFilters.selectedCategories.some(
+                    cat => cat.toLowerCase().trim() === producto.categoria.toLowerCase().trim()
+                );
             });
         }
 
-        // Filtrar por segmentos
-        if (newFilters.selectedSegments && newFilters.selectedSegments.length > 0) {
+        // Filtrar por segmentos (solo productos)
+        if (currentFilters.selectedSegments && currentFilters.selectedSegments.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return newFilters.selectedSegments.includes(producto.segmento);
+                if (!producto.segmento) return false;
+                return currentFilters.selectedSegments.some(
+                    seg => seg.toLowerCase().trim() === producto.segmento.toLowerCase().trim()
+                );
             });
         }
 
         // Filtrar por nombre de producto
-        if (newFilters.selectedProducts && newFilters.selectedProducts.length > 0) {
+        if (currentFilters.selectedProducts && currentFilters.selectedProducts.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
-                return newFilters.selectedProducts.includes(producto.nombre);
+                if (!producto.nombre) return false;
+                return currentFilters.selectedProducts.some(
+                    name => name.toLowerCase().trim() === producto.nombre.toLowerCase().trim()
+                );
             });
         }
 
-        setServicios(filteredServices);
-        setProductos(filteredProducts);
-        setProductosCompuestos(filteredCompuestos);
+        return { filteredProducts, filteredServices, filteredCompuestos };
+    }, []);
+
+    // Inicializar productos visibles
+    useEffect(() => {
+        if (isOpen && products && services) {
+            const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
+                filters, products, services, productosCompuestos, cartItems
+            );
+            setProductosVisibles(filteredProducts);
+            setServiciosVisibles(filteredServices);
+            setProductosCompuestosVisibles(filteredCompuestos);
+        }
+    }, [isOpen, products, services, productosCompuestos]);
+
+    const handleFilter = (updatedFilters) => {
+        const newFilters = { ...filters, ...updatedFilters };
+        setFilters(newFilters);
+
+        const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
+            newFilters, products, services, productosCompuestos, cartItems
+        );
+        
+        setProductosVisibles(filteredProducts);
+        setServiciosVisibles(filteredServices);
+        setProductosCompuestosVisibles(filteredCompuestos);
+
+        console.log('Filtros aplicados:', newFilters);
+        console.log('Productos filtrados:', filteredProducts.length);
+        console.log('Servicios filtrados:', filteredServices.length);
     };
 
     const verificarStockCompuesto = (compuesto, cantidadSolicitada = 1) => {
@@ -219,12 +272,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         setCartItems(newCartItems);
 
         if (itemType === "producto") {
-            const updatedProducts = productos.map((producto) =>
+            const updatedProducts = productosVisibles.map((producto) =>
                 producto.producto_id === item.producto_id
                     ? { ...producto, stock: producto.stock - 1 }
                     : producto
             );
-            setProductos(updatedProducts.filter((producto) => producto.stock > 0));
+            setProductosVisibles(updatedProducts.filter((producto) => producto.stock > 0));
         }
     };
 
@@ -263,12 +316,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         setCartItems(newCartItems);
 
         if (item.itemType === "producto") {
-            const updatedProducts = productos.map((producto) =>
+            const updatedProducts = productosVisibles.map((producto) =>
                 producto.producto_id === item.producto_id
                     ? { ...producto, stock: producto.stock - 1 }
                     : producto
             );
-            setProductos(updatedProducts.filter((producto) => producto.stock > 0));
+            setProductosVisibles(updatedProducts.filter((producto) => producto.stock > 0));
         }
     };
 
@@ -298,21 +351,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         setCartItems(newCartItems);
 
         if (item.itemType === "producto") {
-            let updatedProducts = productos.map((producto) =>
-                producto.producto_id === item.producto_id
-                    ? { ...producto, stock: producto.stock + 1 }
-                    : producto
-            );
-
-            if (!productos.some((p) => p.producto_id === item.producto_id) && item.stock > 0) {
-                updatedProducts = [...updatedProducts, { ...item, stock: item.stock }];
-            }
-
-            setProductos(updatedProducts);
+            // Re-aplicar filtros para restaurar el producto
+            const { filteredProducts } = aplicarFiltros(filters, products, services, productosCompuestos, newCartItems);
+            setProductosVisibles(filteredProducts);
         }
     };
 
-    // Eliminar item del carrito completamente
     const removeFromCart = (item) => {
         const itemIdKey = item.itemType === "producto" ? "producto_id" : 
                          item.itemType === "servicio" ? "servicio_id" : 
@@ -324,25 +368,13 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
 
         setCartItems(newCartItems);
 
-        // Restaurar stock si es producto
-        if (item.itemType === "producto") {
-            const originalProduct = products.find(p => p.producto_id === item.producto_id);
-            if (originalProduct) {
-                const restoredProduct = { ...originalProduct };
-                const updatedProducts = productos.some(p => p.producto_id === item.producto_id)
-                    ? productos.map(p => p.producto_id === item.producto_id ? restoredProduct : p)
-                    : [...productos, restoredProduct];
-                setProductos(updatedProducts);
-            }
-        }
-
-        // Restaurar servicio si fue eliminado
-        if (item.itemType === "servicio") {
-            const originalService = services.find(s => s.servicio_id === item.servicio_id);
-            if (originalService && !servicios.some(s => s.servicio_id === item.servicio_id)) {
-                setServicios([...servicios, originalService]);
-            }
-        }
+        // Re-aplicar filtros para restaurar productos/servicios
+        const { filteredProducts, filteredServices, filteredCompuestos } = aplicarFiltros(
+            filters, products, services, productosCompuestos, newCartItems
+        );
+        setProductosVisibles(filteredProducts);
+        setServiciosVisibles(filteredServices);
+        setProductosCompuestosVisibles(filteredCompuestos);
     };
 
     const handleSell = async (cartItems, client, paymentmethod, total) => {
@@ -395,8 +427,6 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
             alert("Error al registrar la venta: " + (error.response?.data?.message || error.message));
         }
     };
-
-    const cartTotal = cartItems.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
     return (
         <>
@@ -670,8 +700,8 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         >
                             <i className="fa fa-box sales-tab-icon" />
                             <span className="sales-tab-label">Productos</span>
-                            {productos.length > 0 && (
-                                <span className="sales-tab-badge">{productos.length}</span>
+                            {productosVisibles.length > 0 && (
+                                <span className="sales-tab-badge">{productosVisibles.length}</span>
                             )}
                         </button>
                         <button 
@@ -680,8 +710,8 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         >
                             <i className="fa fa-concierge-bell sales-tab-icon" />
                             <span className="sales-tab-label">Servicios</span>
-                            {servicios.length > 0 && (
-                                <span className="sales-tab-badge">{servicios.length}</span>
+                            {serviciosVisibles.length > 0 && (
+                                <span className="sales-tab-badge">{serviciosVisibles.length}</span>
                             )}
                         </button>
                         <button 
@@ -711,7 +741,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                                 showColorOptions={true}
                                 showCategories={true}
                                 showSegments={true}
-                                showProductName={true}  // CORRECCIÓN: Agregar filtro por nombre de producto
+                                showProductName={true}
                                 onFilterChange={handleFilter}
                             />
                         </div>
@@ -720,12 +750,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         <div className={`sales-panel ${activeTab === 'productos' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
                                 <i className="fa fa-box" />
-                                Productos Disponibles ({productos.length})
+                                Productos Disponibles ({productosVisibles.length})
                             </h2>
                             
-                            {productos.length > 0 ? (
+                            {productosVisibles.length > 0 ? (
                                 <div className="sales-products-grid">
-                                    {productos.map((product) => (
+                                    {productosVisibles.map((product) => (
                                         <ProductCard 
                                             key={product.producto_id} 
                                             product={product} 
@@ -740,14 +770,14 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                                 </div>
                             )}
 
-                            {productosCompuestos.length > 0 && (
+                            {productosCompuestosVisibles.length > 0 && (
                                 <>
                                     <h2 className="sales-section-title sales-divider">
                                         <i className="fa fa-boxes" />
-                                        Productos Compuestos ({productosCompuestos.length})
+                                        Productos Compuestos ({productosCompuestosVisibles.length})
                                     </h2>
                                     <div className="sales-products-grid">
-                                        {productosCompuestos.map((compuesto) => (
+                                        {productosCompuestosVisibles.map((compuesto) => (
                                             <ProductCard 
                                                 key={`compuesto-${compuesto.producto_compuesto_id}`}
                                                 product={{
@@ -769,12 +799,12 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                         <div className={`sales-panel ${activeTab === 'servicios' ? 'active' : ''}`}>
                             <h2 className="sales-section-title">
                                 <i className="fa fa-concierge-bell" />
-                                Servicios Disponibles ({servicios.length})
+                                Servicios Disponibles ({serviciosVisibles.length})
                             </h2>
                             
-                            {servicios.length > 0 ? (
+                            {serviciosVisibles.length > 0 ? (
                                 <div className="sales-products-grid">
-                                    {servicios.map((service) => (
+                                    {serviciosVisibles.map((service) => (
                                         <ServiceCard 
                                             key={service.servicio_id} 
                                             service={service} 

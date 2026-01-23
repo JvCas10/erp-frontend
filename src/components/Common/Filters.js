@@ -45,7 +45,6 @@ const Filters = ({
     const statusOptions = ['activo', 'inactivo'];
     const paymentMethods = ['tarjeta', 'transferencia', 'efectivo'];
 
-    // Obtener nombres de clientes al cargar el componente
     const fetchClientNames = async () => {
         try {
             const nombres = await getClientesNombres();
@@ -106,63 +105,35 @@ const Filters = ({
         }
     };
 
-    // CORRECCIÓN: Solo hacer fetch de los datos que realmente se van a usar
     useEffect(() => {
-        if (showClientNames) {
-            fetchClientNames();
-        }
-        if (showEmployeeNames) {
-            fetchEmployeesNames();
-        }
-        if (showProductName) {
-            fetchProductNames();
-        }
-        if (showProviderNames) {
-            fetchProviderNames();
-        }
-        if (showColorOptions) {
-            fetchColorOptions();
-        }
-        if (showCategories) {
-            fetchCategoryOptions();
-        }
+        if (showClientNames) fetchClientNames();
+        if (showEmployeeNames) fetchEmployeesNames();
+        if (showProductName) fetchProductNames();
+        if (showProviderNames) fetchProviderNames();
+        if (showColorOptions) fetchColorOptions();
+        if (showCategories) fetchCategoryOptions();
     }, [showClientNames, showEmployeeNames, showProductName, showProviderNames, showColorOptions, showCategories]);
 
-
-    // Manejo de cambios en los filtros
     const handleSearchChange = (e) => {
-        setSearch(e.target.value);
-        onFilterChange({ search: e.target.value });
+        const value = e.target.value;
+        setSearch(value);
+        onFilterChange({ search: value });
     };
 
     const handleDateRangeChange = (field, value) => {
         const newDateRange = { ...dateRange, [field]: value };
-
-        if (field === 'start' && newDateRange.end && new Date(value) > new Date(newDateRange.end)) {
-            return;
-        }
-
-        if (field === 'end' && newDateRange.start && new Date(value) < new Date(newDateRange.start)) {
-            return;
-        }
-
+        if (field === 'start' && newDateRange.end && new Date(value) > new Date(newDateRange.end)) return;
+        if (field === 'end' && newDateRange.start && new Date(value) < new Date(newDateRange.start)) return;
         setDateRange(newDateRange);
         onFilterChange({ dateRange: newDateRange });
     };
 
-
     const handleStatusChange = (e) => {
-        let updatedStatus;
-        let status = e.target.value;
-
-        if (!status) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedStatus.includes(status)) {
-            updatedStatus = selectedStatus.filter((s) => s !== status);
-        } else {
-            updatedStatus = [...selectedStatus, status];
-        }
-
+        const status = e.target.value;
+        if (!status) return;
+        let updatedStatus = selectedStatus.includes(status) 
+            ? selectedStatus.filter((s) => s !== status) 
+            : [...selectedStatus, status];
         setSelectedStatus(updatedStatus);
         onFilterChange({ selectedStatus: updatedStatus });
     };
@@ -171,577 +142,271 @@ const Filters = ({
         const newPriceRange = { ...priceRange, [field]: value };
         setPriceRange(newPriceRange);
         onFilterChange({ priceRange: newPriceRange });
-    }
+    };
 
     const handleStockRangeChange = (field, value) => {
         const newStockRange = { ...stockRange, [field]: value };
         setStockRange(newStockRange);
         onFilterChange({ stockRange: newStockRange });
-    }
+    };
 
     const handleClientNameChange = (e) => {
-        let updatedClients;
-        let name = e.target.value;
-
-        if (!name) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedClients.includes(name)) {
-            updatedClients = selectedClients.filter((client) => client !== name);
-        } else {
-            updatedClients = [...selectedClients, name];
-        }
-
+        const name = e.target.value;
+        if (!name) return;
+        let updatedClients = selectedClients.includes(name) 
+            ? selectedClients.filter((c) => c !== name) 
+            : [...selectedClients, name];
         setSelectedClients(updatedClients);
         onFilterChange({ selectedClients: updatedClients });
     };
 
     const handleEmployeeNameChange = (e) => {
-        let updatedEmployees;
-        let name = e.target.value;
-
-        if (!name) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedEmployees.includes(name)) {
-            updatedEmployees = selectedEmployees.filter((employee) => employee !== name);
-        } else {
-            updatedEmployees = [...selectedEmployees, name];
-        }
-
+        const name = e.target.value;
+        if (!name) return;
+        let updatedEmployees = selectedEmployees.includes(name) 
+            ? selectedEmployees.filter((e) => e !== name) 
+            : [...selectedEmployees, name];
         setSelectedEmployees(updatedEmployees);
         onFilterChange({ selectedEmployees: updatedEmployees });
     };
 
-
     const handleProductNameChange = (e) => {
-        let updatedProducts;
-        let name = e.target.value;
-
-        if (!name) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedProducts.includes(name)) {
-            updatedProducts = selectedProducts.filter((product) => product !== name);
-        } else {
-            updatedProducts = [...selectedProducts, name];
-        }
-
+        const name = e.target.value;
+        if (!name) return;
+        let updatedProducts = selectedProducts.includes(name) 
+            ? selectedProducts.filter((p) => p !== name) 
+            : [...selectedProducts, name];
         setSelectedProducts(updatedProducts);
         onFilterChange({ selectedProducts: updatedProducts });
-    }
+    };
 
     const handlePaymentMethodChange = (e) => {
-        let updatedPaymentMethods;
-        let method = e.target.value;
-
-        if (!method) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedPaymentMethod.includes(method)) {
-            updatedPaymentMethods = selectedPaymentMethod.filter((m) => m !== method);
-        } else {
-            updatedPaymentMethods = [...selectedPaymentMethod, method];
-        }
-
+        const method = e.target.value;
+        if (!method) return;
+        let updatedPaymentMethods = selectedPaymentMethod.includes(method) 
+            ? selectedPaymentMethod.filter((m) => m !== method) 
+            : [...selectedPaymentMethod, method];
         setSelectedPaymentMethod(updatedPaymentMethods);
         onFilterChange({ selectedPaymentMethod: updatedPaymentMethods });
-    }
+    };
 
     const handleProviderNameChange = (e) => {
-        let updatedProviders;
-        let name = e.target.value;
-
-        if (!name) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedProviders.includes(name)) {
-            updatedProviders = selectedProviders.filter((provider) => provider !== name);
-        } else {
-            updatedProviders = [...selectedProviders, name];
-        }
-
+        const name = e.target.value;
+        if (!name) return;
+        let updatedProviders = selectedProviders.includes(name) 
+            ? selectedProviders.filter((p) => p !== name) 
+            : [...selectedProviders, name];
         setSelectedProviders(updatedProviders);
-        // CORRECCIÓN: Cambiado de 'selectedProveedores' a 'selectedProviders' para consistencia
         onFilterChange({ selectedProviders: updatedProviders });
-    }
+    };
 
     const handleColorChange = (e) => {
-        let updatedColors;
-        let color = e.target.value;
-
-        if (!color) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedColors.includes(color)) {
-            updatedColors = selectedColors.filter((c) => c !== color);
-        } else {
-            updatedColors = [...selectedColors, color];
-        }
-
+        const color = e.target.value;
+        if (!color) return;
+        let updatedColors = selectedColors.includes(color) 
+            ? selectedColors.filter((c) => c !== color) 
+            : [...selectedColors, color];
         setSelectedColors(updatedColors);
         onFilterChange({ selectedColors: updatedColors });
-    }
+    };
 
     const handleCategoryChange = (e) => {
-        let updatedCategories;
-        let category = e.target.value;
-
-        if (!category) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedCategories.includes(category)) {
-            updatedCategories = selectedCategories.filter((c) => c !== category);
-        } else {
-            updatedCategories = [...selectedCategories, category];
-        }
-
+        const category = e.target.value;
+        if (!category) return;
+        let updatedCategories = selectedCategories.includes(category) 
+            ? selectedCategories.filter((c) => c !== category) 
+            : [...selectedCategories, category];
         setSelectedCategories(updatedCategories);
         onFilterChange({ selectedCategories: updatedCategories });
-    }
+    };
 
     const handleSegmentChange = (e) => {
-        let updatedSegments;
-        let segment = e.target.value;
-
-        if (!segment) return; // Ignorar si no hay valor seleccionado
-
-        if (selectedSegments.includes(segment)) {
-            updatedSegments = selectedSegments.filter((s) => s !== segment);
-        } else {
-            updatedSegments = [...selectedSegments, segment];
-        }
-
+        const segment = e.target.value;
+        if (!segment) return;
+        let updatedSegments = selectedSegments.includes(segment) 
+            ? selectedSegments.filter((s) => s !== segment) 
+            : [...selectedSegments, segment];
         setSelectedSegments(updatedSegments);
         onFilterChange({ selectedSegments: updatedSegments });
-    }
+    };
 
-    // Estilos responsive
     const styles = {
-        card: {
-            padding: '15px',
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-        },
-        header: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '15px',
-        },
-        title: {
-            margin: 0,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#333',
-        },
-        collapseBtn: {
-            display: 'none',
-            padding: '5px 10px',
-            backgroundColor: '#667eea',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px',
-        },
-        filtersContainer: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px',
-        },
-        filter: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-        },
-        label: {
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#555',
-        },
-        input: {
-            width: '100%',
-            padding: '8px 12px',
-            border: '1px solid #ddd',
-            borderRadius: '6px',
-            fontSize: '14px',
-            boxSizing: 'border-box',
-        },
-        select: {
-            width: '100%',
-            padding: '8px 12px',
-            border: '1px solid #ddd',
-            borderRadius: '6px',
-            fontSize: '14px',
-            backgroundColor: '#fff',
-            boxSizing: 'border-box',
-        },
-        rangeInputs: {
-            display: 'flex',
-            gap: '10px',
-            alignItems: 'center',
-        },
-        rangeInput: {
-            flex: 1,
-            padding: '8px',
-            border: '1px solid #ddd',
-            borderRadius: '6px',
-            fontSize: '14px',
-            minWidth: 0,
-        },
-        scrollContainer: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '5px',
-            marginTop: '5px',
-        },
-        chip: {
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '4px 10px',
-            backgroundColor: '#667eea',
-            color: '#fff',
-            borderRadius: '20px',
-            fontSize: '12px',
-            border: 'none',
-            cursor: 'pointer',
-        },
-        chipRemove: {
-            marginLeft: '5px',
-            fontWeight: 'bold',
-        },
-        rangeText: {
-            fontSize: '12px',
-            color: '#888',
-            marginTop: '5px',
-        },
+        card: { padding: '15px', backgroundColor: '#fff', borderRadius: '8px' },
+        header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' },
+        title: { margin: 0, fontSize: '18px', fontWeight: '600', color: '#333' },
+        collapseBtn: { display: 'none', padding: '5px 10px', backgroundColor: '#667eea', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+        filtersContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
+        filter: { display: 'flex', flexDirection: 'column', gap: '8px' },
+        label: { fontSize: '14px', fontWeight: '500', color: '#555' },
+        input: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' },
+        select: { width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', backgroundColor: '#fff', boxSizing: 'border-box' },
+        rangeInputs: { display: 'flex', gap: '10px', alignItems: 'center' },
+        rangeInput: { flex: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', minWidth: 0 },
+        scrollContainer: { display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' },
+        chip: { display: 'inline-flex', alignItems: 'center', padding: '4px 10px', backgroundColor: '#667eea', color: '#fff', borderRadius: '20px', fontSize: '12px', border: 'none', cursor: 'pointer' },
+        chipRemove: { marginLeft: '5px', fontWeight: 'bold' },
+        rangeText: { fontSize: '12px', color: '#888', marginTop: '5px' },
     };
 
     return (
         <div style={styles.card} className="filters-card">
             <div style={styles.header}>
                 <h2 style={styles.title}>Filtros</h2>
-                <button 
-                    style={styles.collapseBtn}
-                    className="collapse-btn"
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                >
+                <button style={styles.collapseBtn} className="collapse-btn" onClick={() => setIsCollapsed(!isCollapsed)}>
                     {isCollapsed ? 'Mostrar' : 'Ocultar'}
                 </button>
             </div>
 
-            <div 
-                style={{
-                    ...styles.filtersContainer,
-                    display: isCollapsed ? 'none' : 'flex',
-                }}
-                className="filters-content"
-            >
-                {/* Búsqueda */}
+            <div style={{ ...styles.filtersContainer, display: isCollapsed ? 'none' : 'flex' }} className="filters-content">
                 {showSearchBar && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Búsqueda</label>
-                        <input 
-                            type="text" 
-                            placeholder="Buscar por coincidencia..."
-                            value={search}
-                            onChange={handleSearchChange}
-                            style={styles.input}
-                        />
+                        <input type="text" placeholder="Buscar por coincidencia..." value={search} onChange={handleSearchChange} style={styles.input} />
                     </div>
                 )}
 
-                {/* Rango de Fechas */}
                 {showDateRange && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Rango de Fechas</label>
-                        <input
-                            type="date"
-                            value={dateRange.start}
-                            onChange={(e) => handleDateRangeChange('start', e.target.value)}
-                            style={styles.input}
-                        />
-                        <input
-                            type="date"
-                            value={dateRange.end}
-                            onChange={(e) => handleDateRangeChange('end', e.target.value)}
-                            style={styles.input}
-                        />
+                        <input type="date" value={dateRange.start} onChange={(e) => handleDateRangeChange('start', e.target.value)} style={styles.input} />
+                        <input type="date" value={dateRange.end} onChange={(e) => handleDateRangeChange('end', e.target.value)} style={styles.input} />
                     </div>
                 )}
 
-                {/* Estado (Activo/Inactivo) */}
                 {showStatus && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Estado</label>
                         <select onChange={handleStatusChange} value="" style={styles.select}>
                             <option value="">Seleccionar estado...</option>
-                            {statusOptions
-                                .filter((name) => !selectedStatus.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {statusOptions.filter((name) => !selectedStatus.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedStatus.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleStatusChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedStatus.map((name) => (<button key={name} style={styles.chip} onClick={() => handleStatusChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Rango de Precios */}
                 {showPriceRange && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Rango de Precios</label>
                         <div style={styles.rangeInputs}>
-                            <input
-                                type="number"
-                                min="0"
-                                max="10000"
-                                step="500"
-                                value={priceRange.min}
-                                onChange={(e) => {
-                                    const newMin = Number(e.target.value);
-                                    if (newMin <= priceRange.max) {
-                                        handlePriceRangeChange('min', newMin);
-                                    }
-                                }}
-                                placeholder="Mín"
-                                style={styles.rangeInput}
-                            />
+                            <input type="number" min="0" max="10000" step="500" value={priceRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= priceRange.max) handlePriceRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
                             <span>-</span>
-                            <input
-                                type="number"
-                                min="0"
-                                max="10000"
-                                step="500"
-                                value={priceRange.max}
-                                onChange={(e) => {
-                                    const newMax = Number(e.target.value);
-                                    if (newMax >= priceRange.min) {
-                                        handlePriceRangeChange('max', newMax);
-                                    }
-                                }}
-                                placeholder="Máx"
-                                style={styles.rangeInput}
-                            />
+                            <input type="number" min="0" max="10000" step="500" value={priceRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= priceRange.min) handlePriceRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
                         </div>
                         <span style={styles.rangeText}>De Q{priceRange.min} a Q{priceRange.max}</span>
                     </div>
                 )}
 
-                {/* Rango de Stock */}
                 {showStockRange && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Rango de Stock</label>
                         <div style={styles.rangeInputs}>
-                            <input
-                                type="number"
-                                min="0"
-                                max="1000"
-                                step="50"
-                                value={stockRange.min}
-                                onChange={(e) => {
-                                    const newMin = Number(e.target.value);
-                                    if (newMin <= stockRange.max) {
-                                        handleStockRangeChange('min', newMin);
-                                    }
-                                }}
-                                placeholder="Mín"
-                                style={styles.rangeInput}
-                            />
+                            <input type="number" min="0" max="100000" step="50" value={stockRange.min} onChange={(e) => { const newMin = Number(e.target.value); if (newMin <= stockRange.max) handleStockRangeChange('min', newMin); }} placeholder="Mín" style={styles.rangeInput} />
                             <span>-</span>
-                            <input
-                                type="number"
-                                min="0"
-                                max="1000"
-                                step="50"
-                                value={stockRange.max}
-                                onChange={(e) => {
-                                    const newMax = Number(e.target.value);
-                                    if (newMax >= stockRange.min) {
-                                        handleStockRangeChange('max', newMax);
-                                    }
-                                }}
-                                placeholder="Máx"
-                                style={styles.rangeInput}
-                            />
+                            <input type="number" min="0" max="100000" step="50" value={stockRange.max} onChange={(e) => { const newMax = Number(e.target.value); if (newMax >= stockRange.min) handleStockRangeChange('max', newMax); }} placeholder="Máx" style={styles.rangeInput} />
                         </div>
                         <span style={styles.rangeText}>De {stockRange.min} a {stockRange.max} unidades</span>
                     </div>
                 )}
 
-                {/* Nombres de Clientes */}
                 {showClientNames && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Cliente</label>
                         <select onChange={handleClientNameChange} value="" style={styles.select}>
                             <option value="">Seleccionar cliente...</option>
-                            {clientNames
-                                .filter((name) => !selectedClients.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {clientNames.filter((name) => !selectedClients.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedClients.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleClientNameChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedClients.map((name) => (<button key={name} style={styles.chip} onClick={() => handleClientNameChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Nombres de Empleados */}
                 {showEmployeeNames && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Empleado</label>
                         <select onChange={handleEmployeeNameChange} value="" style={styles.select}>
                             <option value="">Seleccionar empleado...</option>
-                            {employeesNames
-                                .filter((name) => !selectedEmployees.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {employeesNames.filter((name) => !selectedEmployees.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedEmployees.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleEmployeeNameChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedEmployees.map((name) => (<button key={name} style={styles.chip} onClick={() => handleEmployeeNameChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Nombre de Producto */}
                 {showProductName && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Producto</label>
                         <select onChange={handleProductNameChange} value="" style={styles.select}>
                             <option value="">Seleccionar producto...</option>
-                            {productNames
-                                .filter((name) => !selectedProducts.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {productNames.filter((name) => !selectedProducts.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedProducts.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleProductNameChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedProducts.map((name) => (<button key={name} style={styles.chip} onClick={() => handleProductNameChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Método de Pago */}
                 {showPaymentMethod && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Método de Pago</label>
                         <select onChange={handlePaymentMethodChange} value="" style={styles.select}>
                             <option value="">Seleccionar método...</option>
-                            {paymentMethods
-                                .filter((name) => !selectedPaymentMethod.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {paymentMethods.filter((name) => !selectedPaymentMethod.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedPaymentMethod.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handlePaymentMethodChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedPaymentMethod.map((name) => (<button key={name} style={styles.chip} onClick={() => handlePaymentMethodChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Nombre del Proveedor */}
                 {showProviderNames && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Proveedor</label>
                         <select onChange={handleProviderNameChange} value="" style={styles.select}>
                             <option value="">Seleccionar proveedor...</option>
-                            {providerNames
-                                .filter((name) => !selectedProviders.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {providerNames.filter((name) => !selectedProviders.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedProviders.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleProviderNameChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedProviders.map((name) => (<button key={name} style={styles.chip} onClick={() => handleProviderNameChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Opciones de Color */}
                 {showColorOptions && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Color</label>
                         <select onChange={handleColorChange} value="" style={styles.select}>
                             <option value="">Seleccionar color...</option>
-                            {colorOptions
-                                .filter((name) => !selectedColors.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {colorOptions.filter((name) => !selectedColors.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedColors.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleColorChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedColors.map((name) => (<button key={name} style={styles.chip} onClick={() => handleColorChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Categorías */}
                 {showCategories && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Categoría</label>
                         <select onChange={handleCategoryChange} value="" style={styles.select}>
                             <option value="">Seleccionar categoría...</option>
-                            {categoryOptions
-                                .filter((name) => !selectedCategories.includes(name))
-                                .map((name) => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
+                            {categoryOptions.filter((name) => !selectedCategories.includes(name)).map((name) => (<option key={name} value={name}>{name}</option>))}
                         </select>
                         <div style={styles.scrollContainer}>
-                            {selectedCategories.map((name) => (
-                                <button key={name} style={styles.chip} onClick={() => handleCategoryChange({ target: { value: name } })}>
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedCategories.map((name) => (<button key={name} style={styles.chip} onClick={() => handleCategoryChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
 
-                {/* Segmentos */}
                 {showSegments && (
                     <div style={styles.filter}>
                         <label style={styles.label}>Segmento</label>
-                        <input
-                            type="text"
-                            placeholder="Escribe el segmento..."
-                            onChange={handleSegmentChange}
-                            style={styles.input}
-                        />
+                        <input type="text" placeholder="Escribe el segmento..." onKeyDown={(e) => { if (e.key === 'Enter' && e.target.value.trim()) { handleSegmentChange({ target: { value: e.target.value.trim() } }); e.target.value = ''; } }} style={styles.input} />
                         <div style={styles.scrollContainer}>
-                            {selectedSegments.map((name) => (
-                                <button
-                                    key={name}
-                                    style={styles.chip}
-                                    onClick={() => handleSegmentChange({ target: { value: name } })}
-                                >
-                                    {name} <span style={styles.chipRemove}>&times;</span>
-                                </button>
-                            ))}
+                            {selectedSegments.map((name) => (<button key={name} style={styles.chip} onClick={() => handleSegmentChange({ target: { value: name } })}>{name} <span style={styles.chipRemove}>&times;</span></button>))}
                         </div>
                     </div>
                 )}
@@ -749,13 +414,8 @@ const Filters = ({
 
             <style>{`
                 @media (max-width: 768px) {
-                    .filters-card .collapse-btn {
-                        display: block !important;
-                    }
-                    .filters-card .filters-content {
-                        max-height: 60vh;
-                        overflow-y: auto;
-                    }
+                    .filters-card .collapse-btn { display: block !important; }
+                    .filters-card .filters-content { max-height: 60vh; overflow-y: auto; }
                 }
             `}</style>
         </div>
