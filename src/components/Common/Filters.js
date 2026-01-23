@@ -49,65 +49,84 @@ const Filters = ({
     const fetchClientNames = async () => {
         try {
             const nombres = await getClientesNombres();
-            setClientNames(nombres);
+            setClientNames(nombres || []);
         } catch (error) {
             console.error('Error al obtener los nombres de los clientes:', error);
+            setClientNames([]);
         }
     };
 
     const fetchEmployeesNames = async () => {
         try {
             const nombres = await getEmployeesNames();
-            setEmployeesNames(nombres);
+            setEmployeesNames(nombres || []);
         } catch (error) {
             console.error('Error al obtener los nombres de los empleados:', error);
+            setEmployeesNames([]);
         }
     };
 
     const fetchProductNames = async () => {
         try {
             const nombres = await getProductosNombres();
-            setProductNames(nombres);
+            setProductNames(nombres || []);
         } catch (error) {
             console.error('Error al obtener los nombres de los productos:', error);
+            setProductNames([]);
         }
     };
 
     const fetchProviderNames = async () => {
         try {
             const nombres = await getProveedoresNombres();
-            setProviderNames(nombres);
+            setProviderNames(nombres || []);
         } catch (error) {
             console.error('Error al obtener los nombres de los proveedores:', error);
+            setProviderNames([]);
         }
     };
 
     const fetchColorOptions = async () => {
         try {
             const colores = await getColoresProductos();
-            setColorOptions(colores);
+            setColorOptions(colores || []);
         } catch (error) {
             console.error('Error al obtener los colores de los productos:', error);
+            setColorOptions([]);
         }
     };
 
     const fetchCategoryOptions = async () => {
         try {
             const categorias = await getCategoriasProductos();
-            setCategoryOptions(categorias);
+            setCategoryOptions(categorias || []);
         } catch (error) {
             console.error('Error al obtener las categorias de los productos:', error);
+            setCategoryOptions([]);
         }
     };
 
+    // CORRECCIÓN: Solo hacer fetch de los datos que realmente se van a usar
     useEffect(() => {
-        fetchClientNames();
-        fetchEmployeesNames();
-        fetchProductNames();
-        fetchProviderNames();
-        fetchColorOptions();
-        fetchCategoryOptions();
-    }, []);
+        if (showClientNames) {
+            fetchClientNames();
+        }
+        if (showEmployeeNames) {
+            fetchEmployeesNames();
+        }
+        if (showProductName) {
+            fetchProductNames();
+        }
+        if (showProviderNames) {
+            fetchProviderNames();
+        }
+        if (showColorOptions) {
+            fetchColorOptions();
+        }
+        if (showCategories) {
+            fetchCategoryOptions();
+        }
+    }, [showClientNames, showEmployeeNames, showProductName, showProviderNames, showColorOptions, showCategories]);
 
 
     // Manejo de cambios en los filtros
@@ -119,11 +138,11 @@ const Filters = ({
     const handleDateRangeChange = (field, value) => {
         const newDateRange = { ...dateRange, [field]: value };
 
-        if (field === 'start' && new Date(value) > new Date(newDateRange.end)) {
+        if (field === 'start' && newDateRange.end && new Date(value) > new Date(newDateRange.end)) {
             return;
         }
 
-        if (field === 'end' && new Date(value) < new Date(newDateRange.start)) {
+        if (field === 'end' && newDateRange.start && new Date(value) < new Date(newDateRange.start)) {
             return;
         }
 
@@ -136,6 +155,8 @@ const Filters = ({
         let updatedStatus;
         let status = e.target.value;
 
+        if (!status) return; // Ignorar si no hay valor seleccionado
+
         if (selectedStatus.includes(status)) {
             updatedStatus = selectedStatus.filter((s) => s !== status);
         } else {
@@ -147,18 +168,22 @@ const Filters = ({
     };
 
     const handlePriceRangeChange = (field, value) => {
-        setPriceRange({ ...priceRange, [field]: value });
-        onFilterChange({ priceRange: { ...priceRange, [field]: value } });
+        const newPriceRange = { ...priceRange, [field]: value };
+        setPriceRange(newPriceRange);
+        onFilterChange({ priceRange: newPriceRange });
     }
 
     const handleStockRangeChange = (field, value) => {
-        setStockRange({ ...stockRange, [field]: value });
-        onFilterChange({ stockRange: { ...stockRange, [field]: value } });
+        const newStockRange = { ...stockRange, [field]: value };
+        setStockRange(newStockRange);
+        onFilterChange({ stockRange: newStockRange });
     }
 
     const handleClientNameChange = (e) => {
         let updatedClients;
         let name = e.target.value;
+
+        if (!name) return; // Ignorar si no hay valor seleccionado
 
         if (selectedClients.includes(name)) {
             updatedClients = selectedClients.filter((client) => client !== name);
@@ -173,6 +198,8 @@ const Filters = ({
     const handleEmployeeNameChange = (e) => {
         let updatedEmployees;
         let name = e.target.value;
+
+        if (!name) return; // Ignorar si no hay valor seleccionado
 
         if (selectedEmployees.includes(name)) {
             updatedEmployees = selectedEmployees.filter((employee) => employee !== name);
@@ -189,6 +216,8 @@ const Filters = ({
         let updatedProducts;
         let name = e.target.value;
 
+        if (!name) return; // Ignorar si no hay valor seleccionado
+
         if (selectedProducts.includes(name)) {
             updatedProducts = selectedProducts.filter((product) => product !== name);
         } else {
@@ -202,6 +231,8 @@ const Filters = ({
     const handlePaymentMethodChange = (e) => {
         let updatedPaymentMethods;
         let method = e.target.value;
+
+        if (!method) return; // Ignorar si no hay valor seleccionado
 
         if (selectedPaymentMethod.includes(method)) {
             updatedPaymentMethods = selectedPaymentMethod.filter((m) => m !== method);
@@ -217,6 +248,8 @@ const Filters = ({
         let updatedProviders;
         let name = e.target.value;
 
+        if (!name) return; // Ignorar si no hay valor seleccionado
+
         if (selectedProviders.includes(name)) {
             updatedProviders = selectedProviders.filter((provider) => provider !== name);
         } else {
@@ -224,12 +257,15 @@ const Filters = ({
         }
 
         setSelectedProviders(updatedProviders);
-        onFilterChange({ selectedProveedores: updatedProviders });
+        // CORRECCIÓN: Cambiado de 'selectedProveedores' a 'selectedProviders' para consistencia
+        onFilterChange({ selectedProviders: updatedProviders });
     }
 
     const handleColorChange = (e) => {
         let updatedColors;
         let color = e.target.value;
+
+        if (!color) return; // Ignorar si no hay valor seleccionado
 
         if (selectedColors.includes(color)) {
             updatedColors = selectedColors.filter((c) => c !== color);
@@ -245,6 +281,8 @@ const Filters = ({
         let updatedCategories;
         let category = e.target.value;
 
+        if (!category) return; // Ignorar si no hay valor seleccionado
+
         if (selectedCategories.includes(category)) {
             updatedCategories = selectedCategories.filter((c) => c !== category);
         } else {
@@ -258,6 +296,8 @@ const Filters = ({
     const handleSegmentChange = (e) => {
         let updatedSegments;
         let segment = e.target.value;
+
+        if (!segment) return; // Ignorar si no hay valor seleccionado
 
         if (selectedSegments.includes(segment)) {
             updatedSegments = selectedSegments.filter((s) => s !== segment);

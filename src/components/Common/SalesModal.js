@@ -62,7 +62,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         let filteredCompuestos = [...productosCompuestos];
 
         // Filtrar por búsqueda
-        if (newFilters.search !== "") {
+        if (newFilters.search && newFilters.search !== "") {
             const search = newFilters.search.toLowerCase();
             filteredProducts = filteredProducts.filter((producto) => {
                 return (
@@ -88,7 +88,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
 
         // Filtrar por rango de precios
-        if (newFilters.priceRange.min >= 0 && newFilters.priceRange.max >= 0) {
+        if (newFilters.priceRange && newFilters.priceRange.min >= 0 && newFilters.priceRange.max >= 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
             });
@@ -101,7 +101,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
         }
 
         // Filtrar por rango de stock
-        if (newFilters.stockRange.min >= 0 && newFilters.stockRange.max >= 0) {
+        if (newFilters.stockRange && newFilters.stockRange.min >= 0 && newFilters.stockRange.max >= 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
             });
@@ -711,6 +711,7 @@ const SalesModal = ({ isOpen, onClose, products, services, clientes, fetchProduc
                                 showColorOptions={true}
                                 showCategories={true}
                                 showSegments={true}
+                                showProductName={true}  // CORRECCIÓN: Agregar filtro por nombre de producto
                                 onFilterChange={handleFilter}
                             />
                         </div>

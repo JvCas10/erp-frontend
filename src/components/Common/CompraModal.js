@@ -31,45 +31,62 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
             return !cartItems.some((item) => item.producto_id === producto.producto_id);
         });
 
-        if (newFilters.search !== "") {
+        // Filtrar por búsqueda
+        if (newFilters.search && newFilters.search !== "") {
             const search = newFilters.search.toLowerCase();
             filteredProducts = filteredProducts.filter((producto) => {
                 return (
-                    producto.nombre.toLowerCase().includes(search) ||
-                    producto.descripcion.toLowerCase().includes(search) ||
-                    producto.categoria.toLowerCase().includes(search) ||
-                    producto.segmento.toLowerCase().includes(search) ||
-                    producto.color.toLowerCase().includes(search) ||
-                    producto.precio.toString().includes(search) ||
-                    producto.stock.toString().includes(search) ||
-                    producto.producto_id.toString().includes(search)
+                    (producto.nombre && producto.nombre.toLowerCase().includes(search)) ||
+                    (producto.descripcion && producto.descripcion.toLowerCase().includes(search)) ||
+                    (producto.categoria && producto.categoria.toLowerCase().includes(search)) ||
+                    (producto.segmento && producto.segmento.toLowerCase().includes(search)) ||
+                    (producto.color && producto.color.toLowerCase().includes(search)) ||
+                    (producto.precio && producto.precio.toString().includes(search)) ||
+                    (producto.stock && producto.stock.toString().includes(search)) ||
+                    (producto.producto_id && producto.producto_id.toString().includes(search))
                 );
             });
         }
 
-        filteredProducts = filteredProducts.filter((producto) => {
-            return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
-        });
+        // Filtrar por rango de precios
+        if (newFilters.priceRange && newFilters.priceRange.min >= 0 && newFilters.priceRange.max >= 0) {
+            filteredProducts = filteredProducts.filter((producto) => {
+                return producto.precio >= newFilters.priceRange.min && producto.precio <= newFilters.priceRange.max;
+            });
+        }
 
-        filteredProducts = filteredProducts.filter((producto) => {
-            return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
-        });
+        // Filtrar por rango de stock
+        if (newFilters.stockRange && newFilters.stockRange.min >= 0 && newFilters.stockRange.max >= 0) {
+            filteredProducts = filteredProducts.filter((producto) => {
+                return producto.stock >= newFilters.stockRange.min && producto.stock <= newFilters.stockRange.max;
+            });
+        }
 
-        if (newFilters.selectedColors.length > 0) {
+        // Filtrar por colores
+        if (newFilters.selectedColors && newFilters.selectedColors.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedColors.includes(producto.color);
             });
         }
 
-        if (newFilters.selectedCategories.length > 0) {
+        // Filtrar por categorías
+        if (newFilters.selectedCategories && newFilters.selectedCategories.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedCategories.includes(producto.categoria);
             });
         }
 
-        if (newFilters.selectedSegments.length > 0) {
+        // Filtrar por segmentos
+        if (newFilters.selectedSegments && newFilters.selectedSegments.length > 0) {
             filteredProducts = filteredProducts.filter((producto) => {
                 return newFilters.selectedSegments.includes(producto.segmento);
+            });
+        }
+
+        // CORRECCIÓN: Agregar filtro por nombre de producto
+        if (newFilters.selectedProducts && newFilters.selectedProducts.length > 0) {
+            filteredProducts = filteredProducts.filter((producto) => {
+                return newFilters.selectedProducts.includes(producto.nombre);
             });
         }
 
@@ -219,79 +236,70 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                 .compra-close-btn {
                     background: rgba(255,255,255,0.2);
                     border: none;
+                    color: #fff;
+                    width: 36px;
+                    height: 36px;
                     border-radius: 50%;
-                    width: 40px;
-                    height: 40px;
+                    cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    cursor: pointer;
-                    color: #fff;
-                    font-size: 18px;
-                    transition: all 0.2s;
+                    transition: background 0.2s;
                 }
                 
                 .compra-close-btn:hover {
                     background: rgba(255,255,255,0.3);
-                    transform: scale(1.1);
                 }
                 
                 .compra-tabs {
                     display: flex;
                     background: #fff;
                     border-bottom: 1px solid #e0e0e0;
-                    padding: 0;
                     flex-shrink: 0;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                    overflow-x: auto;
                 }
                 
                 .compra-tab {
                     flex: 1;
+                    min-width: 80px;
                     padding: 12px 8px;
                     border: none;
                     background: transparent;
                     cursor: pointer;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: #888;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     gap: 4px;
+                    color: #666;
                     transition: all 0.2s;
-                    position: relative;
                     border-bottom: 3px solid transparent;
-                }
-                
-                .compra-tab:hover {
-                    background: #f5f5f5;
+                    position: relative;
                 }
                 
                 .compra-tab.active {
                     color: #11998e;
-                    background: #e6f9f5;
+                    background: #e8f5e9;
                     border-bottom-color: #11998e;
                 }
                 
                 .compra-tab-icon {
-                    font-size: 22px;
+                    font-size: 18px;
                 }
                 
                 .compra-tab-label {
                     font-size: 11px;
+                    font-weight: 600;
+                    text-transform: uppercase;
                 }
                 
                 @media (min-width: 500px) {
                     .compra-tab {
                         flex-direction: row;
                         gap: 8px;
-                        font-size: 14px;
-                    }
-                    .compra-tab-icon {
-                        font-size: 18px;
+                        padding: 12px 16px;
                     }
                     .compra-tab-label {
-                        font-size: 14px;
+                        font-size: 13px;
                     }
                 }
                 
@@ -452,9 +460,10 @@ const CompraModal = ({ isOpen, onClose, products, proveedores, fetchProducts, fe
                                 showSearchBar={true}
                                 showPriceRange={true}
                                 showStockRange={true}
-                                showColors={true}
+                                showColorOptions={true}  // CORRECCIÓN: Era 'showColors' que no existe
                                 showCategories={true}
                                 showSegments={true}
+                                showProductName={true}   // CORRECCIÓN: Agregar filtro por nombre de producto
                                 onFilterChange={handleFilter}
                             />
                         </div>
