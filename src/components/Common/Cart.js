@@ -4,13 +4,13 @@ import CartPurchaseItem from "./CartPurchaseItem"; // Para compras
 import "../../assets/styles/Cart.css"; // Archivo de estilos
 import { Button } from "reactstrap";
 
-const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, isPurchase, clients, providers, handleQuantityChange, handleRemoveCart, removeItem, handleSubmit }) => {
+const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, isPurchase, clients, providers, handleQuantityChange, handlePriceChange, handleRemoveCart, removeItem, handleSubmit }) => {
   const [selectedClientOrProvider, setSelectedClientOrProvider] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
 
   // Calcular el total dinámico - COSTO para compras, PRECIO para ventas
   const totalPrice = cartItems.reduce((acc, product) => {
-    const unitPrice = isPurchase ? Number(product.costo || 0) : Number(product.precio || 0);
+    const unitPrice = Number(product.precio || 0);
     return acc + unitPrice * product.cantidad;
   }, 0);
 
@@ -33,6 +33,7 @@ const Cart = ({ cartItems, increaseQuantity, decreaseQuantity, isPurchase, clien
                 <CartPurchaseItem
                   key={cartItem.producto_id}
                   product={cartItem}
+                  handlePriceChange={handlePriceChange}
                   handleQuantityChange={handleQuantityChange}
                   removeItem={handleRemoveCart}
                 />
