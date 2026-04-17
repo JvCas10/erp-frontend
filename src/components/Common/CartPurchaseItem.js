@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../../assets/styles/CartPurchaseItem.css";
 import regaloImg from "../../assets/regalo.png"; // Imagen de respaldo
 
 const CartPurchaseItem = ({ product, handlePriceChange, handleQuantityChange, removeItem }) => {
+  const [cantidadLocal, setCantidadLocal] = useState(String(product.cantidad));
+
+  useEffect(() => {
+    setCantidadLocal(String(product.cantidad));
+  }, [product.cantidad]);
   
   const FILES_API = import.meta.env?.VITE_SERVER_FILES || process.env.REACT_APP_SERVER_FILES;
 
@@ -44,8 +49,16 @@ const CartPurchaseItem = ({ product, handlePriceChange, handleQuantityChange, re
         <input
           type="number"
           className="cart-item-input"
-          value={product.cantidad}
-          onChange={(e) => handleQuantityChange(product, parseInt(e.target.value, 10) || 1)}
+          value={cantidadLocal}
+          onChange={(e) => {
+            setCantidadLocal(e.target.value);
+            const parsed = parseInt(e.target.value, 10);
+            if (!isNaN(parsed) && parsed >= 1) handleQuantityChange(product, parsed);
+          }}
+          onBlur={() => {
+            const parsed = parseInt(cantidadLocal, 10);
+            if (isNaN(parsed) || parsed < 1) setCantidadLocal(String(product.cantidad));
+          }}
           min="1"
         />
       </div>
